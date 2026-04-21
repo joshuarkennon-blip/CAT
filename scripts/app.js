@@ -3,6 +3,7 @@
  */
 
 import { mountCat } from "./cat.js";
+import { resolveCatAssetOptions } from "./cat-assets.js";
 
 const TOOLS = [
   {
@@ -41,7 +42,10 @@ const EXAMPLES = [
 
 function init() {
   const catStage = document.querySelector("[data-cat]");
-  const cat = mountCat(catStage, { state: "idle" });
+  const cat = mountCat(catStage, {
+    state: "idle",
+    ...resolveCatAssetOptions(catStage),
+  });
 
   bindComposer(cat);
   bindToolSelect();

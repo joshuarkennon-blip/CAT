@@ -3,11 +3,14 @@
  */
 
 import { mountCat } from "./cat.js";
+import { resolveCatAssetOptions } from "./cat-assets.js";
 
 function init() {
   const catStage = document.querySelector("[data-cat]");
+  const assetOptions = resolveCatAssetOptions(catStage);
   const cat = mountCat(catStage, {
     state: "idle",
+    ...assetOptions,
     onClick: () => {
       cat?.setState("attentive");
       setTimeout(() => cat?.setState("idle"), 1400);
