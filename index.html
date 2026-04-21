@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CAT — Companion Analytics Toolkit</title>
+    <meta
+      name="description"
+      content="CAT is the companion analytics toolkit. Audit GTM, check HAR files, review GA4, and route anything else through your orange companion."
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles/tokens.css" />
+    <link rel="stylesheet" href="./styles/base.css" />
+    <link rel="stylesheet" href="./styles/components.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="wordmark">CAT<span>.</span></div>
+        <div class="header-meta">
+          <span><span class="status-dot"></span>Ready</span>
+          <span>v0.1</span>
+        </div>
+      </header>
+
+      <main class="hero">
+        <h1 class="hero__prompt">What can I help you with today?</h1>
+
+        <div class="cat-stage hero__cat" data-cat data-state="idle"></div>
+
+        <form class="composer" data-composer autocomplete="off">
+          <div class="composer__row">
+            <label class="sr-only" for="composer-input">Describe your problem</label>
+            <textarea
+              id="composer-input"
+              class="composer__input"
+              rows="1"
+              placeholder="Describe your problem or select a tool."
+              data-composer-input
+            ></textarea>
+            <button
+              type="submit"
+              class="composer__submit"
+              data-composer-submit
+              disabled
+            >
+              Run <span class="composer__submit-arrow">→</span>
+            </button>
+          </div>
+
+          <div class="tool-select">
+            <button
+              type="button"
+              class="tool-select__trigger"
+              data-tool-trigger
+              aria-haspopup="listbox"
+              aria-expanded="false"
+            >
+              <span data-tool-label>No tool selected</span>
+              <svg class="tool-select__caret" viewBox="0 0 10 10" aria-hidden="true">
+                <path d="M 1 3 L 5 7 L 9 3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div
+              class="tool-select__menu"
+              data-tool-menu
+              role="listbox"
+              data-open="false"
+            ></div>
+          </div>
+        </form>
+
+        <div class="suggestions" data-examples></div>
+      </main>
+    </div>
+
+    <script type="module" src="./scripts/app.js"></script>
+  </body>
+</html>

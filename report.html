@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CAT — GTM Audit Report</title>
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles/tokens.css" />
+    <link rel="stylesheet" href="./styles/base.css" />
+    <link rel="stylesheet" href="./styles/components.css" />
+    <link rel="stylesheet" href="./styles/report.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <a href="./index.html" class="wordmark">CAT<span>.</span></a>
+        <div class="header-meta">
+          <span><span class="status-dot"></span>Complete</span>
+          <span>GTM-AUDIT · 02:14</span>
+        </div>
+      </header>
+
+      <div class="report-layout">
+        <article>
+          <header class="report-header">
+            <div class="report-header__meta">
+              <span>Tool · GTM audit</span>
+              <span>Run · 2026-04-21 14:32</span>
+              <span>Container · GTM-XXXX12</span>
+            </div>
+            <h1 class="report-header__title">GTM container audit</h1>
+            <p class="report-header__summary">
+              Seven tags reviewed. Two high-severity issues, one consent gap,
+              and a handful of housekeeping items. Your conversion pixel is
+              firing twice on checkout — fix that first.
+            </p>
+          </header>
+
+          <div class="report-sections">
+            <!-- Findings -->
+            <section class="report-section" id="findings" aria-labelledby="findings-title">
+              <header class="report-section__head">
+                <div class="report-section__title-group">
+                  <span class="eyebrow">01 · Findings</span>
+                  <h2 class="report-section__title" id="findings-title">What CAT spotted</h2>
+                </div>
+                <div class="report-section__actions">
+                  <button class="icon-button" data-copy="#findings-body" type="button">
+                    <svg viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                      <rect x="3.5" y="3.5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/>
+                      <path d="M 2 10 L 2 2 L 10 2" stroke="currentColor" stroke-width="1.2" fill="none"/>
+                    </svg>
+                    Copy
+                  </button>
+                  <button class="icon-button" data-export="markdown" type="button">Export .md</button>
+                </div>
+              </header>
+
+              <div class="findings" id="findings-body">
+                <div class="finding" data-severity="high">
+                  <span class="finding__severity" aria-hidden="true"></span>
+                  <div class="finding__body">
+                    <div class="finding__title">Duplicate conversion pixel on /checkout/success</div>
+                    <div class="finding__detail">
+                      Tag <code>Google Ads — Purchase</code> fires twice on the success page —
+                      once via All Pages trigger, once via Purchase event. Revenue is
+                      double-counted for ~40% of sessions.
+                    </div>
+                    <div class="finding__meta">tag: Google Ads — Purchase · trigger: All Pages + Purchase</div>
+                  </div>
+                  <span class="finding__tag">High</span>
+                </div>
+
+                <div class="finding" data-severity="high">
+                  <span class="finding__severity" aria-hidden="true"></span>
+                  <div class="finding__body">
+                    <div class="finding__title">GA4 session_start missing user_id</div>
+                    <div class="finding__detail">
+                      Logged-in users aren't stitching across devices. The session_start
+                      event does not include <code>user_id</code>, but your User ID variable
+                      is populated.
+                    </div>
+                    <div class="finding__meta">tag: GA4 Configuration · variable: dlv.user_id (present)</div>
+                  </div>
+                  <span class="finding__tag">High</span>
+                </div>
+
+                <div class="finding" data-severity="medium">
+                  <span class="finding__severity" aria-hidden="true"></span>
+                  <div class="finding__body">
+                    <div class="finding__title">Consent mode defaults not set before GTM loads</div>
+                    <div class="finding__detail">
+                      The default <code>consent</code> command runs inside GTM instead of before.
+                      A race condition means some users send hits with
+                      <code>ad_storage=granted</code> by accident.
+                    </div>
+                    <div class="finding__meta">container: default · cmp: OneTrust</div>
+                  </div>
+                  <span class="finding__tag">Medium</span>
+                </div>
+
+                <div class="finding" data-severity="low">
+                  <span class="finding__severity" aria-hidden="true"></span>
+                  <div class="finding__body">
+                    <div class="finding__title">4 paused tags left in container</div>
+                    <div class="finding__detail">
+                      Legacy tags are paused but still shipping in every container publish.
+                      Safe to delete.
+                    </div>
+                    <div class="finding__meta">tags: fb_legacy, pinterest_v1, tiktok_test, hotjar_old</div>
+                  </div>
+                  <span class="finding__tag">Low</span>
+                </div>
+
+                <div class="finding" data-severity="ok">
+                  <span class="finding__severity" aria-hidden="true"></span>
+                  <div class="finding__body">
+                    <div class="finding__title">Enhanced ecommerce dataLayer is clean</div>
+                    <div class="finding__detail">
+                      All required parameters present on view_item, add_to_cart, and purchase.
+                    </div>
+                    <div class="finding__meta">events: view_item, add_to_cart, purchase</div>
+                  </div>
+                  <span class="finding__tag">OK</span>
+                </div>
+              </div>
+            </section>
+
+            <!-- Recommendations -->
+            <section class="report-section" id="recommendations" aria-labelledby="recs-title">
+              <header class="report-section__head">
+                <div class="report-section__title-group">
+                  <span class="eyebrow">02 · Recommendations</span>
+                  <h2 class="report-section__title" id="recs-title">What to do</h2>
+                </div>
+                <div class="report-section__actions">
+                  <button class="icon-button" data-copy="#recs-body" type="button">Copy</button>
+                  <button class="icon-button" data-export="pdf" type="button">Export .pdf</button>
+                </div>
+              </header>
+
+              <ol class="recommendations" id="recs-body">
+                <li class="recommendation">
+                  <div class="recommendation__body">
+                    <h4>Remove the All Pages trigger from Google Ads — Purchase</h4>
+                    <p>
+                      Keep only the Purchase event trigger. Validate in Preview mode on
+                      /checkout/success before publishing.
+                    </p>
+                  </div>
+                </li>
+                <li class="recommendation">
+                  <div class="recommendation__body">
+                    <h4>Add user_id to the GA4 Configuration tag</h4>
+                    <p>
+                      Map <code>{{dlv.user_id}}</code> to the <code>user_id</code> field. This
+                      enables cross-device identity stitching in GA4.
+                    </p>
+                  </div>
+                </li>
+                <li class="recommendation">
+                  <div class="recommendation__body">
+                    <h4>Move consent defaults into the &lt;head&gt;</h4>
+                    <p>
+                      Run <code>gtag('consent', 'default', ...)</code> inline, before the GTM
+                      snippet. OneTrust's template supports a pre-GTM hook.
+                    </p>
+                  </div>
+                </li>
+                <li class="recommendation">
+                  <div class="recommendation__body">
+                    <h4>Delete the four paused legacy tags</h4>
+                    <p>
+                      Archive the container version first so rollbacks stay easy.
+                    </p>
+                  </div>
+                </li>
+              </ol>
+            </section>
+
+            <!-- Next steps -->
+            <section class="report-section" id="next-steps" aria-labelledby="next-title">
+              <header class="report-section__head">
+                <div class="report-section__title-group">
+                  <span class="eyebrow">03 · Next steps</span>
+                  <h2 class="report-section__title" id="next-title">Ship it</h2>
+                </div>
+                <div class="report-section__actions">
+                  <button class="icon-button" data-copy="#next-body" type="button">Copy</button>
+                  <button class="icon-button" data-export="share" type="button">Share link</button>
+                </div>
+              </header>
+
+              <div class="next-steps" id="next-body">
+                <div class="next-step">
+                  <span class="next-step__check" aria-hidden="true"></span>
+                  Open your workspace and create a new version named "audit-2026-04-21".
+                </div>
+                <div class="next-step">
+                  <span class="next-step__check" aria-hidden="true"></span>
+                  Apply the two high-severity fixes first and QA in Preview mode.
+                </div>
+                <div class="next-step">
+                  <span class="next-step__check" aria-hidden="true"></span>
+                  Publish to production once Real-time GA4 shows clean events for 15 minutes.
+                </div>
+                <div class="next-step">
+                  <span class="next-step__check" aria-hidden="true"></span>
+                  Re-run the CAT audit in 7 days to confirm the duplicate fires are gone.
+                </div>
+              </div>
+            </section>
+          </div>
+        </article>
+
+        <aside class="report-aside">
+          <div class="aside-cat">
+            <div class="cat-stage" data-cat data-state="idle"></div>
+            <div class="aside-cat__label">Click me to ask about this report.</div>
+          </div>
+          <nav class="aside-toc" aria-label="Report sections">
+            <a href="#findings" aria-current="true">01 · Findings</a>
+            <a href="#recommendations">02 · Recommendations</a>
+            <a href="#next-steps">03 · Next steps</a>
+          </nav>
+        </aside>
+      </div>
+    </div>
+
+    <script type="module" src="./scripts/report.js"></script>
+  </body>
+</html>
