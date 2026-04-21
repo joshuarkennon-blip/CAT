@@ -252,6 +252,13 @@
   color: var(--text-primary);
 }
 
+.tool-select__option:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: -2px;
+  background: var(--accent-blue-soft);
+  color: var(--text-primary);
+}
+
 .tool-select__option-name {
   font-family: var(--font-mono);
   font-size: var(--fs-sm);
