@@ -108,8 +108,8 @@ export function mountCat(container, { state = "idle", onClick, asset } = {}) {
   container.classList.add("cat-stage");
   container.dataset.state = initialState;
 
-  const catAsset = normalizeAssetConfig(asset);
-  const mountedAsset = mountAssetProvider(container, catAsset, initialState);
+  let catAsset = normalizeAssetConfig(asset);
+  let mountedAsset = mountAssetProvider(container, catAsset, initialState);
 
   bindContainerInteractivity(container, onClick);
 
@@ -119,6 +119,18 @@ export function mountCat(container, { state = "idle", onClick, asset } = {}) {
       if (!normalizedState) return;
       container.dataset.state = normalizedState;
       mountedAsset.setState(normalizedState);
+    },
+    setAsset(nextAsset) {
+      const nextState = normalizeState(container.dataset.state) || "idle";
+      catAsset = normalizeAssetConfig(nextAsset);
+      mountedAsset = mountAssetProvider(container, catAsset, nextState);
+      return catAsset;
+    },
+    getState() {
+      return normalizeState(container.dataset.state) || "idle";
+    },
+    getAsset() {
+      return { ...catAsset, stateSources: { ...catAsset.stateSources } };
     },
     element: container,
     asset: catAsset,

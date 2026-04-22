@@ -4,13 +4,19 @@
 
 import { mountCat } from "./cat.js";
 import { resolveCatAssetOptions } from "./cat-assets.js";
+import { maybeMountCatDebugPanel } from "./cat-debug-panel.js";
 
 function init() {
   const catStage = document.querySelector("[data-cat]");
   const assetOptions = resolveCatAssetOptions(catStage);
+  maybeMountCatDebugPanel({
+    stage: catStage,
+    initialAsset: assetOptions.asset,
+  });
+  const finalAssetOptions = resolveCatAssetOptions(catStage, assetOptions.asset);
   const cat = mountCat(catStage, {
     state: "idle",
-    ...assetOptions,
+    ...finalAssetOptions,
     onClick: () => {
       cat?.setState("attentive");
       setTimeout(() => cat?.setState("idle"), 1400);

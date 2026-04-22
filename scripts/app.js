@@ -4,6 +4,7 @@
 
 import { mountCat } from "./cat.js";
 import { resolveCatAssetOptions } from "./cat-assets.js";
+import { maybeMountCatDebugPanel } from "./cat-debug-panel.js";
 
 const TOOLS = [
   {
@@ -46,6 +47,7 @@ function init() {
     state: "idle",
     ...resolveCatAssetOptions(catStage),
   });
+  maybeMountCatDebugPanel({ cat, catStage });
 
   bindComposer(cat);
   bindToolSelect();
