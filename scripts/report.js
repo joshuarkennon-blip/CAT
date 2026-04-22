@@ -4,19 +4,25 @@
 
 import { mountCat } from "./cat.js";
 import { resolveCatAssetOptions } from "./cat-assets.js";
-import { mountCatDebugPanel, isCatDebugEnabled } from "./cat-debug-panel.js";
+import { maybeMountCatDebugPanel } from "./cat-debug-panel.js";
+import { DEFAULT_CAT_ASSET_CONFIG } from "./cat-default-asset.js";
 
 function init() {
   const catStage = document.querySelector("[data-cat]");
+  const assetOptions = resolveCatAssetOptions(catStage, DEFAULT_CAT_ASSET_CONFIG);
   const cat = mountCat(catStage, {
     state: "idle",
-    ...resolveCatAssetOptions(catStage),
+    ...assetOptions,
     onClick: () => {
       cat?.setState("attentive");
       setTimeout(() => cat?.setState("idle"), 1400);
     },
   });
-  if (isCatDebugEnabled()) mountCatDebugPanel({ cat, stage: catStage });
+  maybeMountCatDebugPanel({
+    cat,
+    catStage,
+    initialAsset: assetOptions.asset,
+  });
 
   document.querySelectorAll("[data-copy]").forEach((btn) => {
     btn.addEventListener("click", () => handleCopy(btn));

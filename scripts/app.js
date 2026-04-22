@@ -4,7 +4,8 @@
 
 import { mountCat } from "./cat.js";
 import { resolveCatAssetOptions } from "./cat-assets.js";
-import { mountCatDebugPanel, isCatDebugEnabled } from "./cat-debug-panel.js";
+import { maybeMountCatDebugPanel } from "./cat-debug-panel.js";
+import { DEFAULT_CAT_ASSET_CONFIG } from "./cat-default-asset.js";
 import { mountScene } from "./scene.js";
 
 const TOOLS = [
@@ -52,11 +53,16 @@ function init() {
   scene.positionCat(catStage);
   scene.positionUI(monitorUI);
 
+  const assetOptions = resolveCatAssetOptions(catStage, DEFAULT_CAT_ASSET_CONFIG);
   const cat = mountCat(catStage, {
     state: "idle",
-    ...resolveCatAssetOptions(catStage),
+    ...assetOptions,
   });
-  if (isCatDebugEnabled()) mountCatDebugPanel({ cat, stage: catStage });
+  maybeMountCatDebugPanel({
+    cat,
+    catStage,
+    initialAsset: assetOptions.asset,
+  });
 
   bindComposer(cat);
   bindToolSelect();
