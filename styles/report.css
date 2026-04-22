@@ -317,6 +317,10 @@
 
 /* Small mobile cat — fixed corner */
 @media (max-width: 959px) {
+  .report-layout {
+    padding-bottom: calc(var(--space-9) + 110px);
+  }
+
   .report-aside {
     position: fixed;
     bottom: var(--space-4);
