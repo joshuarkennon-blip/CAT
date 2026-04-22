@@ -6,6 +6,7 @@ import { mountCat } from "./cat.js";
 import { resolveCatAssetOptions } from "./cat-assets.js";
 import { maybeMountCatDebugPanel } from "./cat-debug-panel.js";
 import { DEFAULT_CAT_ASSET_CONFIG } from "./cat-default-asset.js";
+import { mountScene } from "./scene.js";
 
 const TOOLS = [
   {
@@ -43,7 +44,15 @@ const EXAMPLES = [
 ];
 
 function init() {
-  const catStage = document.querySelector("[data-cat]");
+  const hero         = document.querySelector("[data-hero]");
+  const sceneWrapper = document.querySelector("[data-scene]");
+  const catStage     = document.querySelector("[data-cat]");
+  const monitorUI    = document.querySelector("[data-monitor-ui]");
+
+  const scene = mountScene(sceneWrapper, hero);
+  scene.positionCat(catStage);
+  scene.positionUI(monitorUI);
+
   const assetOptions = resolveCatAssetOptions(catStage, DEFAULT_CAT_ASSET_CONFIG);
   const cat = mountCat(catStage, {
     state: "idle",
