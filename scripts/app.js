@@ -7,41 +7,21 @@ import { resolveCatAssetOptions } from "./cat-assets.js";
 import { maybeMountCatDebugPanel } from "./cat-debug-panel.js";
 import { DEFAULT_CAT_ASSET_CONFIG } from "./cat-default-asset.js";
 import { mountScene } from "./scene.js";
-
-const TOOLS = [
-  {
-    id: "none",
-    name: "No tool selected",
-    desc: "Let CAT route your request",
-  },
-  {
-    id: "gtm-audit",
-    name: "GTM audit",
-    desc: "Tag Manager container review",
-  },
-  {
-    id: "har-check",
-    name: "HAR file check",
-    desc: "Network capture analysis",
-  },
-  {
-    id: "ga4-review",
-    name: "GA4 configuration review",
-    desc: "Property, events, conversions",
-  },
-  {
-    id: "consent-check",
-    name: "Consent mode audit",
-    desc: "CMP + consent state verification",
-  },
-];
+import { TOOLS } from "./tools-registry.js";
+import { route } from "./router.js";
+import { renderReport } from "./report-renderer.js";
 
 const EXAMPLES = [
   "Audit my GTM container",
   "Check my HAR file for tracking errors",
   "Review my GA4 configuration",
   "Why aren't my conversions firing?",
+  "Find tag sequencing problems in my container",
+  "Check cookie compliance on this HAR file",
 ];
+
+let _selectedToolId = null;
+let _toolResultEl = null;
 
 function init() {
   const hero         = document.querySelector("[data-hero]");
@@ -64,9 +44,22 @@ function init() {
     initialAsset: assetOptions.asset,
   });
 
+  _toolResultEl = getOrCreateToolResult();
+
   bindComposer(cat);
   bindToolSelect();
   bindExamples();
+}
+
+function getOrCreateToolResult() {
+  let el = document.getElementById("tool-result");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "tool-result";
+    el.className = "tool-result";
+    document.querySelector(".app-shell")?.appendChild(el);
+  }
+  return el;
 }
 
 function bindComposer(cat) {
@@ -97,11 +90,95 @@ function bindComposer(cat) {
     }
   });
 
-  form.addEventListener("submit", (e) => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (input.value.trim().length === 0) return;
-    runDemoTransition(cat);
+    const text = input.value.trim();
+    if (!text && !_selectedToolId) return;
+    await runTool(text, cat);
   });
+}
+
+async function runTool(text, cat) {
+  const { tool, confidence } = route(text, _selectedToolId);
+
+  if (!tool) {
+    cat?.setState("attentive");
+    setTimeout(() => cat?.setState("idle"), 1400);
+    return;
+  }
+
+  cat?.setState("active");
+
+  try {
+    const { run } = await tool.module();
+    const inputData = await collectInput(tool);
+    if (inputData === null) {
+      cat?.setState("idle");
+      return;
+    }
+    const result = run(inputData);
+    renderReport(result, _toolResultEl);
+    _toolResultEl.scrollIntoView({ behavior: "smooth" });
+    cat?.setState("celebratory");
+    setTimeout(() => cat?.setState("idle"), 2000);
+  } catch (err) {
+    console.error(err);
+    cat?.setState("idle");
+  }
+}
+
+async function collectInput(tool) {
+  if (tool.inputType === "file" || tool.inputType === "file-or-text") {
+    return promptFile(tool.fileAccept);
+  }
+  if (tool.inputType === "form") {
+    return promptForm(tool.id);
+  }
+  return document.querySelector("[data-composer-input]")?.value.trim() ?? "";
+}
+
+function promptFile(accept) {
+  return new Promise(resolve => {
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = accept;
+    fileInput.addEventListener("change", async () => {
+      const file = fileInput.files[0];
+      if (!file) return resolve(null);
+      const text = await file.text();
+      try { resolve(JSON.parse(text)); }
+      catch { resolve(text); }
+    });
+    fileInput.click();
+  });
+}
+
+function promptForm(toolId) {
+  if (toolId === "ga4-checker") return promptGa4Form();
+  if (toolId === "discrepancy") return promptDiscrepancyForm();
+  return null;
+}
+
+function promptGa4Form() {
+  const measurementId = window.prompt("GA4 Measurement ID (e.g. G-XXXXXXXXXX):");
+  if (!measurementId) return null;
+  const keyEventsRaw = window.prompt("Key events (comma-separated, or leave blank):") ?? "";
+  const keyEvents = keyEventsRaw.split(",").map(s => s.trim()).filter(Boolean);
+  const internalTrafficFilterEnabled = confirm("Is an internal traffic filter enabled?");
+  const dataRetentionMonths = confirm("Is data retention set to 14 months? (Cancel = 2 months)") ? "14" : "2";
+  const debugModeActive = confirm("Is debug mode currently active?");
+  const googleSignalsEnabled = confirm("Is Google Signals enabled?");
+  return { measurementId, keyEvents, internalTrafficFilterEnabled, dataRetentionMonths, debugModeActive, googleSignalsEnabled, streams: [] };
+}
+
+function promptDiscrepancyForm() {
+  const ga4Conversions = parseInt(window.prompt("GA4 conversions:") ?? "0", 10);
+  const adsConversions = parseInt(window.prompt("Google Ads conversions:") ?? "0", 10);
+  const crmLeads = parseInt(window.prompt("CRM leads (leave blank if N/A):") ?? "0", 10);
+  const ga4Sessions = parseInt(window.prompt("GA4 sessions:") ?? "0", 10);
+  const adsSessions = parseInt(window.prompt("Google Ads clicks:") ?? "0", 10);
+  const autoTaggingEnabled = confirm("Is auto-tagging enabled in Google Ads?");
+  return { ga4Conversions, adsConversions, crmLeads, ga4Sessions, adsSessions, autoTaggingEnabled };
 }
 
 function bindToolSelect() {
@@ -115,25 +192,27 @@ function bindToolSelect() {
   }
   trigger.setAttribute("aria-controls", menu.id);
 
-  menu.innerHTML = TOOLS.map(
+  const menuTools = [{ id: "", label: "No tool selected", description: "Let CAT route your request" }, ...TOOLS];
+
+  menu.innerHTML = menuTools.map(
     (t, index) => `
       <div
         class="tool-select__option"
-        id="tool-select-option-${t.id}"
+        id="tool-select-option-${t.id || 'none'}"
         role="option"
         data-tool-id="${t.id}"
         data-tool-index="${index}"
-        aria-selected="${t.id === "none"}"
+        aria-selected="${index === 0}"
         tabindex="-1"
       >
-        <span class="tool-select__option-name">${t.name}</span>
-        <span class="tool-select__option-desc">${t.desc}</span>
+        <span class="tool-select__option-name">${t.label}</span>
+        <span class="tool-select__option-desc">${t.description}</span>
       </div>
     `
   ).join("");
 
-  let selectedId = "none";
-  let activeIndex = TOOLS.findIndex((tool) => tool.id === selectedId);
+  let selectedId = "";
+  let activeIndex = 0;
 
   const getOptions = () =>
     Array.from(menu.querySelectorAll(".tool-select__option"));
@@ -147,11 +226,12 @@ function bindToolSelect() {
   };
 
   const setSelected = (toolId) => {
-    const tool = TOOLS.find((t) => t.id === toolId);
-    if (!tool) return;
+    const tool = menuTools.find((t) => t.id === toolId);
+    if (tool === undefined) return;
     selectedId = tool.id;
-    activeIndex = TOOLS.findIndex((t) => t.id === tool.id);
-    label.textContent = tool.name;
+    _selectedToolId = tool.id || null;
+    activeIndex = menuTools.findIndex((t) => t.id === tool.id);
+    label.textContent = tool.label;
     getOptions().forEach((option) => {
       option.setAttribute(
         "aria-selected",
@@ -164,7 +244,7 @@ function bindToolSelect() {
     trigger.setAttribute("aria-expanded", String(open));
     menu.setAttribute("data-open", String(open));
     if (open && focusSelected) {
-      const selectedIndex = TOOLS.findIndex((tool) => tool.id === selectedId);
+      const selectedIndex = menuTools.findIndex((tool) => tool.id === selectedId);
       focusOption(selectedIndex >= 0 ? selectedIndex : 0);
     }
     if (!open && returnFocus) {
@@ -250,7 +330,7 @@ function bindToolSelect() {
 
     if (e.key === "End") {
       e.preventDefault();
-      focusOption(TOOLS.length - 1);
+      focusOption(menuTools.length - 1);
       return;
     }
 
@@ -302,14 +382,6 @@ function bindExamples() {
   });
 }
 
-/* Demo: transition cat through states to preview animation vocabulary.
- * In a real build this would be wired to the tool execution stream. */
-function runDemoTransition(cat) {
-  if (!cat) return;
-  cat.setState("active");
-  setTimeout(() => cat.setState("celebratory"), 2200);
-  setTimeout(() => cat.setState("idle"), 3600);
-}
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", init);
