@@ -241,3 +241,38 @@ function normalizeAsset(asset) {
     stateSources,
   };
 }
+
+/* Safe helper used by entry scripts.
+ * Returns null unless debug mode is enabled and a mounted cat instance exists.
+ */
+export function maybeMountCatDebugPanel({
+  cat,
+  catStage,
+  stage,
+  title,
+  initialAsset,
+  initialState,
+} = {}) {
+  if (!isCatDebugEnabled()) {
+    return null;
+  }
+
+  const resolvedStage = stage || catStage || cat?.element;
+  if (!cat || !resolvedStage) {
+    return null;
+  }
+
+  return mountCatDebugPanel({
+    cat,
+    stage: resolvedStage,
+    title,
+    initialAsset: initialAsset || cat.getAsset?.() || {},
+    initialState: initialState || cat.getState?.() || "idle",
+    onAssetChange(nextAsset) {
+      cat.setAsset(nextAsset);
+    },
+    onStateChange(nextState) {
+      cat.setState(nextState);
+    },
+  });
+}

@@ -10,18 +10,18 @@ import { DEFAULT_CAT_ASSET_CONFIG } from "./cat-default-asset.js";
 function init() {
   const catStage = document.querySelector("[data-cat]");
   const assetOptions = resolveCatAssetOptions(catStage, DEFAULT_CAT_ASSET_CONFIG);
-  maybeMountCatDebugPanel({
-    stage: catStage,
-    initialAsset: assetOptions.asset,
-  });
-  const finalAssetOptions = resolveCatAssetOptions(catStage, assetOptions.asset);
   const cat = mountCat(catStage, {
     state: "idle",
-    ...finalAssetOptions,
+    ...assetOptions,
     onClick: () => {
       cat?.setState("attentive");
       setTimeout(() => cat?.setState("idle"), 1400);
     },
+  });
+  maybeMountCatDebugPanel({
+    cat,
+    catStage,
+    initialAsset: assetOptions.asset,
   });
 
   document.querySelectorAll("[data-copy]").forEach((btn) => {
