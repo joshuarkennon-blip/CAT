@@ -958,13 +958,17 @@ const SCENE_SVG = /* html */`
     </path>
   </g>
 
-  <!-- Monitor stand -->
-  <rect x="598" y="446" width="26" height="98" fill="#252525" rx="2"/>
-  <rect x="558" y="540" width="106" height="14" fill="#2e2e2e" rx="5"/>
+  <!-- Monitor stand — tapered pillar + thin foot -->
+  <rect x="609" y="446" width="9" height="96" fill="#1c1c20" rx="4.5"/>
+  <rect x="553" y="539" width="120" height="6" fill="#1a1a1e" rx="3"/>
+  <ellipse cx="613" cy="543" rx="62" ry="5" fill="#141418" opacity="0.9"/>
 
-  <!-- Monitor frame -->
-  <rect x="406" y="298" width="414" height="252" fill="#181818" rx="14"/>
-  <rect x="414" y="306" width="398" height="236" fill="#0e0e0e" rx="10"/>
+  <!-- Monitor body — slim single-layer bezel, modern form -->
+  <rect x="412" y="296" width="402" height="248" fill="#13131a" rx="20"/>
+  <!-- Thin top-edge glint -->
+  <rect x="413" y="297" width="400" height="2" fill="#ffffff" opacity="0.05" rx="10"/>
+  <!-- Subtle side-edge depth -->
+  <rect x="412" y="296" width="4" height="248" fill="#1e1e28" opacity="0.6" rx="2"/>
 
   <!-- Screen: dark — real HTML UI is overlaid here by JS -->
   <rect id="s-monitor-screen" x="418" y="310" width="390" height="228" fill="#0a0a0f" rx="8"/>

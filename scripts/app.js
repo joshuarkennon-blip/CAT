@@ -46,7 +46,7 @@ function init() {
 
   _toolResultEl = getOrCreateToolResult();
 
-  bindComposer(cat);
+  bindComposer(cat, hero);
   bindToolSelect();
   bindExamples();
 }
@@ -62,12 +62,18 @@ function getOrCreateToolResult() {
   return el;
 }
 
-function bindComposer(cat) {
+function bindComposer(cat, hero) {
   const form = document.querySelector("[data-composer]");
   const input = document.querySelector("[data-composer-input]");
   const submit = document.querySelector("[data-composer-submit]");
 
   if (!form || !input) return;
+
+  const engage  = () => hero?.classList.add("hero--engaged");
+  const disengage = () => { if (!input.value.trim()) hero?.classList.remove("hero--engaged"); };
+
+  input.addEventListener("focus", engage);
+  input.addEventListener("blur",  disengage);
 
   const updateSubmitState = () => {
     submit.disabled = input.value.trim().length === 0;
@@ -78,8 +84,6 @@ function bindComposer(cat) {
     updateSubmitState();
     input.style.height = "auto";
     input.style.height = Math.min(input.scrollHeight, 240) + "px";
-
-    // Cat becomes attentive while the user composes.
     cat?.setState(input.value.trim().length > 0 ? "attentive" : "idle");
   });
 

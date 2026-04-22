@@ -90,8 +90,27 @@
   animation: s-lights-drift 8s ease-in-out infinite;
 }
 
+/* ===== Scene zoom — punch in on engagement ===== */
+.hero {
+  transform-origin: 42% 58%;
+  transition: transform 0.9s cubic-bezier(0.34, 1.04, 0.64, 1);
+  will-change: transform;
+}
+
+.hero--engaged {
+  transform: scale(1.20);
+}
+
+/* Keep cat video on its own compositor layer so it doesn't inflate the hero texture */
+.hero__cat {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
 /* ===== Reduce motion ===== */
 @media (prefers-reduced-motion: reduce) {
+  .hero { transition: none !important; }
+
   #s-curtain-l,
   #s-curtain-r,
   #s-bookshelf,
