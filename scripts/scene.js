@@ -831,25 +831,22 @@ const SCENE_SVG = /* html */`
   <rect x="758" y="612" width="130" height="58" fill="#3a1808" rx="2"/>
   <rect x="772" y="636" width="102" height="3"  fill="#5a2c14" rx="1.5"/>
 
-  <!-- Cat bed (where cat sits) — round brown/tan cushion bed -->
-  <!-- Bed shadow on desk -->
-  <ellipse cx="277" cy="545" rx="122" ry="10" fill="#000000" opacity="0.42" filter="url(#s-blur-xs)"/>
-  <!-- Bed outer rim — dark chocolate brown, 3D front face -->
-  <rect x="156" y="508" width="242" height="36" rx="10" fill="#4e2508"/>
-  <!-- Rim face highlight — top edge catch light -->
-  <rect x="156" y="508" width="242" height="5" rx="3" fill="#7a3e18" opacity="0.75"/>
-  <!-- Rim inner bevel shadow -->
-  <rect x="160" y="537" width="234" height="7" rx="4" fill="#2e1404" opacity="0.7"/>
-  <!-- Bed interior cushion — warm tan radial fill -->
-  <ellipse cx="277" cy="511" rx="115" ry="17" fill="url(#s-cat-bed-cushion)"/>
-  <!-- Cushion highlight — softer warm center -->
-  <ellipse cx="263" cy="507" rx="84" ry="12" fill="#dab46e" opacity="0.6"/>
-  <ellipse cx="256" cy="505" rx="50" ry="8" fill="#eecf90" opacity="0.45"/>
-  <!-- Rim stitch line detail -->
-  <rect x="162" y="511" width="230" height="28" rx="7" fill="none" stroke="#7a3e1a" stroke-width="1.2" stroke-dasharray="7,5" opacity="0.45"/>
-  <!-- "CAT." on bed front face -->
-  <text x="277" y="532" text-anchor="middle" font-family="monospace" font-size="9"
-        fill="#9a5428" letter-spacing="3" opacity="0.65">CAT.</text>
+  <!-- Cat bed — oval bolster cushion, flush on desk, warm lamp-lit tones -->
+  <!-- Ground contact shadow — very soft, hugs the desk -->
+  <ellipse cx="278" cy="544" rx="104" ry="7" fill="#000" opacity="0.30" filter="url(#s-blur-xs)"/>
+  <!-- Outer rim body — the raised wall of the bed -->
+  <ellipse cx="278" cy="526" rx="106" ry="20" fill="#4e2208"/>
+  <!-- Rim top catchlight — warm lamp hitting the near edge -->
+  <ellipse cx="278" cy="519" rx="104" ry="14" fill="#6c3418" opacity="0.85"/>
+  <!-- Cushion surface — radial tan, sits inside the rim -->
+  <ellipse cx="278" cy="514" rx="88" ry="14" fill="url(#s-cat-bed-cushion)"/>
+  <!-- Cushion warm highlight — lamp spill from right -->
+  <ellipse cx="288" cy="511" rx="60" ry="10" fill="#ddaf68" opacity="0.50"/>
+  <ellipse cx="294" cy="509" rx="34" ry="6" fill="#eecb84" opacity="0.36"/>
+  <!-- Front rim face — depth below the cat, slightly darker -->
+  <ellipse cx="278" cy="537" rx="106" ry="10" fill="#3a1806" opacity="0.90"/>
+  <!-- Rim stitching groove — single thin line, not dashes -->
+  <ellipse cx="278" cy="518" rx="96" ry="17" fill="none" stroke="#7a3e16" stroke-width="1" opacity="0.38"/>
 
   <!-- Keyboard -->
   <rect x="398" y="518" width="272" height="76" fill="#232323" rx="10"/>
