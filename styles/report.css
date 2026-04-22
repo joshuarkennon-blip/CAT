@@ -1,6 +1,16 @@
 /* CAT — Report view
- * Structured findings → recommendations → next steps. Clean handoff.
+ * Structured findings → recommendations → next steps. Lofi night aesthetic.
  */
+
+/* Aside cat: screen blend so black video background disappears */
+.aside-cat .cat-stage {
+  mix-blend-mode: screen;
+  background: transparent;
+}
+.aside-cat .cat-stage .cat-stage__asset--video {
+  object-fit: cover;
+  clip-path: inset(0 0 14% 0);
+}
 
 .report-layout {
   display: grid;

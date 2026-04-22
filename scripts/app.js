@@ -4,7 +4,8 @@
 
 import { mountCat } from "./cat.js";
 import { resolveCatAssetOptions } from "./cat-assets.js";
-import { maybeMountCatDebugPanel } from "./cat-debug-panel.js";
+import { mountCatDebugPanel, isCatDebugEnabled } from "./cat-debug-panel.js";
+import { mountScene } from "./scene.js";
 
 const TOOLS = [
   {
@@ -42,12 +43,20 @@ const EXAMPLES = [
 ];
 
 function init() {
-  const catStage = document.querySelector("[data-cat]");
+  const hero         = document.querySelector("[data-hero]");
+  const sceneWrapper = document.querySelector("[data-scene]");
+  const catStage     = document.querySelector("[data-cat]");
+  const monitorUI    = document.querySelector("[data-monitor-ui]");
+
+  const scene = mountScene(sceneWrapper, hero);
+  scene.positionCat(catStage);
+  scene.positionUI(monitorUI);
+
   const cat = mountCat(catStage, {
     state: "idle",
     ...resolveCatAssetOptions(catStage),
   });
-  maybeMountCatDebugPanel({ cat, catStage });
+  if (isCatDebugEnabled()) mountCatDebugPanel({ cat, stage: catStage });
 
   bindComposer(cat);
   bindToolSelect();

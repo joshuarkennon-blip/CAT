@@ -4,89 +4,163 @@
  */
 
 const CAT_SVG = `
-<svg class="cat" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="CAT companion" preserveAspectRatio="xMidYMid meet">
+<svg class="cat" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg"
+  role="img" aria-label="CAT companion" preserveAspectRatio="xMidYMid meet">
   <defs>
-    <linearGradient id="cat-body-grad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#ffa85c"/>
-      <stop offset="100%" stop-color="#ff8c42"/>
-    </linearGradient>
-    <linearGradient id="cat-belly-grad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#f5d5ab"/>
-      <stop offset="100%" stop-color="#e3b87f"/>
-    </linearGradient>
+    <!-- Fur: warm radial, brighter centre -->
+    <radialGradient id="cat-fur" cx="45%" cy="38%" r="62%">
+      <stop offset="0%"   stop-color="#ffb870"/>
+      <stop offset="45%"  stop-color="#ff9848"/>
+      <stop offset="100%" stop-color="#e06a20"/>
+    </radialGradient>
+    <!-- Body fur (slightly different angle) -->
+    <radialGradient id="cat-body-fur" cx="50%" cy="30%" r="65%">
+      <stop offset="0%"   stop-color="#ffaa58"/>
+      <stop offset="55%"  stop-color="#ff8c42"/>
+      <stop offset="100%" stop-color="#d86020"/>
+    </radialGradient>
+    <!-- Belly: warm cream -->
+    <radialGradient id="cat-belly" cx="50%" cy="40%" r="60%">
+      <stop offset="0%"   stop-color="#fce8c8"/>
+      <stop offset="70%"  stop-color="#f0c898"/>
+      <stop offset="100%" stop-color="#d8a870"/>
+    </radialGradient>
+    <!-- Eye iris: teal gradient -->
+    <radialGradient id="cat-iris" cx="40%" cy="35%" r="60%">
+      <stop offset="0%"   stop-color="#40e8ff"/>
+      <stop offset="55%"  stop-color="#00c8ee"/>
+      <stop offset="100%" stop-color="#0088bb"/>
+    </radialGradient>
+    <!-- Eye ambient glow -->
     <radialGradient id="cat-eye-glow" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0%" stop-color="#00d9ff" stop-opacity="0.9"/>
+      <stop offset="0%"   stop-color="#00d9ff" stop-opacity="0.7"/>
       <stop offset="100%" stop-color="#00d9ff" stop-opacity="0"/>
     </radialGradient>
+    <!-- Drop shadow filter -->
+    <filter id="cat-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#6a2800" flood-opacity="0.3"/>
+    </filter>
+    <!-- Fur sheen filter -->
+    <filter id="cat-sheen" x="-5%" y="-5%" width="110%" height="110%">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
   </defs>
 
-  <!-- Tail (renders behind body, animates from base) -->
-  <g class="cat__tail" style="transform-origin: 175px 175px;">
-    <path d="M 175 175 Q 210 170 218 135 Q 222 100 200 92"
-          stroke="#ff8c42" stroke-width="16" stroke-linecap="round" fill="none"/>
-    <path d="M 175 175 Q 210 170 218 135 Q 222 100 200 92"
-          stroke="#8b6f47" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.35"/>
-    <circle cx="200" cy="92" r="8" fill="#8b6f47"/>
+  <!-- Tail (behind body — animates from base) -->
+  <g class="cat__tail" style="transform-origin: 172px 178px;">
+    <!-- Main tail shape -->
+    <path d="M 172 178 Q 208 172 216 136 Q 220 100 196 90"
+          stroke="url(#cat-body-fur)" stroke-width="18" stroke-linecap="round" fill="none"/>
+    <!-- Stripe overlay -->
+    <path d="M 172 178 Q 208 172 216 136 Q 220 100 196 90"
+          stroke="#b06030" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.28"/>
+    <!-- Fluffy tail tip -->
+    <circle cx="196" cy="90" r="11" fill="#ffaa58" filter="url(#cat-sheen)"/>
+    <circle cx="196" cy="90" r="7"  fill="#fce0b0"/>
   </g>
 
   <!-- Body -->
-  <g class="cat__body">
-    <ellipse cx="120" cy="168" rx="56" ry="50" fill="url(#cat-body-grad)"/>
-    <ellipse cx="120" cy="182" rx="32" ry="28" fill="url(#cat-belly-grad)" opacity="0.92"/>
-    <!-- Body stripes -->
-    <path d="M 78 150 Q 72 162 80 178" stroke="#8b6f47" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.4"/>
-    <path d="M 162 150 Q 168 162 160 178" stroke="#8b6f47" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.4"/>
+  <g class="cat__body" filter="url(#cat-shadow)">
+    <!-- Main torso -->
+    <ellipse cx="120" cy="170" rx="58" ry="52" fill="url(#cat-body-fur)"/>
+    <!-- Belly patch -->
+    <ellipse cx="120" cy="186" rx="34" ry="30" fill="url(#cat-belly)" opacity="0.88"/>
+    <!-- Side stripes -->
+    <path d="M 76 148 Q 68 162 76 180"  stroke="#b06030" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.38"/>
+    <path d="M 68 158 Q 61 170 68 186"  stroke="#b06030" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.25"/>
+    <path d="M 164 148 Q 172 162 164 180" stroke="#b06030" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.38"/>
+    <path d="M 172 158 Q 179 170 172 186" stroke="#b06030" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.25"/>
+    <!-- Chest tuft -->
+    <ellipse cx="120" cy="152" rx="18" ry="12" fill="#fce8c8" opacity="0.55"/>
     <!-- Front paws -->
-    <ellipse cx="100" cy="212" rx="14" ry="10" fill="#ff8c42"/>
-    <ellipse cx="140" cy="212" rx="14" ry="10" fill="#ff8c42"/>
-    <ellipse cx="100" cy="214" rx="6" ry="3" fill="#5a4a35" opacity="0.5"/>
-    <ellipse cx="140" cy="214" rx="6" ry="3" fill="#5a4a35" opacity="0.5"/>
+    <ellipse cx="98"  cy="214" rx="16" ry="11" fill="url(#cat-body-fur)"/>
+    <ellipse cx="142" cy="214" rx="16" ry="11" fill="url(#cat-body-fur)"/>
+    <!-- Toe beans -->
+    <ellipse cx="93"  cy="217" rx="4"  ry="2.5" fill="#c87858" opacity="0.55"/>
+    <ellipse cx="103" cy="218" rx="4"  ry="2.5" fill="#c87858" opacity="0.55"/>
+    <ellipse cx="137" cy="218" rx="4"  ry="2.5" fill="#c87858" opacity="0.55"/>
+    <ellipse cx="147" cy="217" rx="4"  ry="2.5" fill="#c87858" opacity="0.55"/>
+    <!-- Paw highlights -->
+    <ellipse cx="98"  cy="211" rx="9"  ry="4"   fill="#ffba68" opacity="0.35"/>
+    <ellipse cx="142" cy="211" rx="9"  ry="4"   fill="#ffba68" opacity="0.35"/>
   </g>
 
   <!-- Head -->
-  <g class="cat__head" style="transform-origin: 120px 95px;">
+  <g class="cat__head" style="transform-origin: 120px 94px;">
     <!-- Ears -->
     <g class="cat__ears">
-      <path class="cat__ear cat__ear--left" d="M 82 68 L 72 32 L 108 58 Z" fill="#ff8c42" style="transform-origin: 82px 68px;"/>
-      <path d="M 86 62 L 82 44 L 100 58 Z" fill="#8b6f47" opacity="0.65"/>
-      <path class="cat__ear cat__ear--right" d="M 158 68 L 168 32 L 132 58 Z" fill="#ff8c42" style="transform-origin: 158px 68px;"/>
-      <path d="M 154 62 L 158 44 L 140 58 Z" fill="#8b6f47" opacity="0.65"/>
+      <!-- Left ear (outer) -->
+      <path class="cat__ear cat__ear--left"
+            d="M 80 68 L 68 28 L 110 56 Z"
+            fill="url(#cat-fur)" style="transform-origin: 80px 68px;"/>
+      <!-- Left ear inner -->
+      <path d="M 84 62 L 78 40 L 104 58 Z" fill="#d05a30" opacity="0.7"/>
+      <!-- Right ear (outer) -->
+      <path class="cat__ear cat__ear--right"
+            d="M 160 68 L 172 28 L 130 56 Z"
+            fill="url(#cat-fur)" style="transform-origin: 160px 68px;"/>
+      <!-- Right ear inner -->
+      <path d="M 156 62 L 162 40 L 136 58 Z" fill="#d05a30" opacity="0.7"/>
     </g>
 
-    <!-- Face -->
-    <ellipse cx="120" cy="92" rx="50" ry="45" fill="url(#cat-body-grad)"/>
-    <!-- Head stripe -->
-    <path d="M 120 52 Q 116 70 120 88" stroke="#8b6f47" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.45"/>
+    <!-- Head -->
+    <ellipse cx="120" cy="92" rx="52" ry="48" fill="url(#cat-fur)" filter="url(#cat-shadow)"/>
+
+    <!-- Forehead stripes (tabby) -->
+    <path d="M 120 50 Q 115 66 120 86" stroke="#b06030" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.42"/>
+    <path d="M 112 52 Q 108 68 112 84" stroke="#b06030" stroke-width="2"   stroke-linecap="round" fill="none" opacity="0.22"/>
+    <path d="M 128 52 Q 132 68 128 84" stroke="#b06030" stroke-width="2"   stroke-linecap="round" fill="none" opacity="0.22"/>
+
+    <!-- Cheek tufts -->
+    <ellipse cx="80"  cy="104" rx="12" ry="8" fill="#ffba68" opacity="0.4"  transform="rotate(-15 80 104)"/>
+    <ellipse cx="160" cy="104" rx="12" ry="8" fill="#ffba68" opacity="0.4"  transform="rotate(15 160 104)"/>
+
     <!-- Muzzle -->
-    <ellipse cx="120" cy="108" rx="26" ry="18" fill="#f5d5ab" opacity="0.6"/>
+    <ellipse cx="120" cy="110" rx="28" ry="20" fill="url(#cat-belly)" opacity="0.7"/>
 
     <!-- Eyes -->
     <g class="cat__eyes">
-      <ellipse class="cat__eye cat__eye--left" cx="102" cy="88" rx="8" ry="10" fill="#1a1a1a"/>
-      <ellipse class="cat__eye cat__eye--right" cx="138" cy="88" rx="8" ry="10" fill="#1a1a1a"/>
-      <circle cx="102" cy="86" r="12" fill="url(#cat-eye-glow)" opacity="0.55"/>
-      <circle cx="138" cy="86" r="12" fill="url(#cat-eye-glow)" opacity="0.55"/>
-      <circle cx="102" cy="86" r="3" fill="#00d9ff"/>
-      <circle cx="138" cy="86" r="3" fill="#00d9ff"/>
-      <circle cx="103" cy="84" r="1.2" fill="#ffffff"/>
-      <circle cx="139" cy="84" r="1.2" fill="#ffffff"/>
-      <!-- Eyelid for blink -->
-      <rect class="cat__lid cat__lid--left" x="92" y="78" width="20" height="0" fill="#ff8c42" rx="2"/>
-      <rect class="cat__lid cat__lid--right" x="128" y="78" width="20" height="0" fill="#ff8c42" rx="2"/>
+      <!-- Eye sockets (dark surround) -->
+      <ellipse class="cat__eye cat__eye--left"  cx="102" cy="87" rx="11" ry="13" fill="#181818"/>
+      <ellipse class="cat__eye cat__eye--right" cx="138" cy="87" rx="11" ry="13" fill="#181818"/>
+      <!-- Iris (teal) -->
+      <ellipse cx="102" cy="87" rx="8"  ry="10" fill="url(#cat-iris)"/>
+      <ellipse cx="138" cy="87" rx="8"  ry="10" fill="url(#cat-iris)"/>
+      <!-- Pupil (vertical slit) -->
+      <ellipse cx="102" cy="87" rx="3"  ry="8"  fill="#0a0a0a"/>
+      <ellipse cx="138" cy="87" rx="3"  ry="8"  fill="#0a0a0a"/>
+      <!-- Eye ambient glow halos -->
+      <circle cx="102" cy="85" r="14" fill="url(#cat-eye-glow)" opacity="0.6"/>
+      <circle cx="138" cy="85" r="14" fill="url(#cat-eye-glow)" opacity="0.6"/>
+      <!-- Catchlights (Pixar-style: large + small) -->
+      <circle cx="106" cy="82" r="3"   fill="#ffffff" opacity="0.95"/>
+      <circle cx="98"  cy="90" r="1.4" fill="#ffffff" opacity="0.7"/>
+      <circle cx="142" cy="82" r="3"   fill="#ffffff" opacity="0.95"/>
+      <circle cx="134" cy="90" r="1.4" fill="#ffffff" opacity="0.7"/>
+      <!-- Eyelids for blink (JS-animated) -->
+      <rect class="cat__lid cat__lid--left"  x="90"  y="77" width="24" height="0" fill="url(#cat-fur)" rx="3"/>
+      <rect class="cat__lid cat__lid--right" x="126" y="77" width="24" height="0" fill="url(#cat-fur)" rx="3"/>
     </g>
 
     <!-- Nose -->
-    <path d="M 116 102 L 124 102 L 120 108 Z" fill="#8b6f47"/>
+    <path d="M 114 104 L 126 104 L 120 112 Z" fill="#d05050"/>
+    <!-- Philtrum line -->
+    <line x1="120" y1="112" x2="120" y2="116" stroke="#b04040" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
     <!-- Mouth -->
-    <path d="M 120 108 Q 114 116 110 112" stroke="#5a4a35" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M 120 108 Q 126 116 130 112" stroke="#5a4a35" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M 120 116 Q 112 124 108 120" stroke="#904030" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M 120 116 Q 128 124 132 120" stroke="#904030" stroke-width="2" fill="none" stroke-linecap="round"/>
 
-    <!-- Whiskers -->
-    <g class="cat__whiskers" stroke="#c1c1c1" stroke-width="1.2" stroke-linecap="round" opacity="0.55">
-      <line x1="90" y1="104" x2="68" y2="99"/>
-      <line x1="90" y1="108" x2="68" y2="110"/>
-      <line x1="150" y1="104" x2="172" y2="99"/>
-      <line x1="150" y1="108" x2="172" y2="110"/>
+    <!-- Whiskers (3 per side, slight angle variety) -->
+    <g class="cat__whiskers" stroke="#e8e8d8" stroke-linecap="round" opacity="0.65">
+      <!-- Left whiskers -->
+      <line x1="92"  y1="106" x2="62"  y2="100" stroke-width="1.4"/>
+      <line x1="92"  y1="110" x2="62"  y2="112" stroke-width="1.4"/>
+      <line x1="92"  y1="114" x2="64"  y2="120" stroke-width="1.2"/>
+      <!-- Right whiskers -->
+      <line x1="148" y1="106" x2="178" y2="100" stroke-width="1.4"/>
+      <line x1="148" y1="110" x2="178" y2="112" stroke-width="1.4"/>
+      <line x1="148" y1="114" x2="176" y2="120" stroke-width="1.2"/>
     </g>
   </g>
 </svg>

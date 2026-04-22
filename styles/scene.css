@@ -1,0 +1,108 @@
+/* CAT — Scene
+ * NYC apartment background. Lofi night — moonlit window, warm desk lamp.
+ * Styles + CSS animation layer for the SVG scene.
+ */
+
+/* ===== Scene wrapper — full-bleed hero background ===== */
+.scene-wrapper {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.scene-wrapper > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ===== Curtain animations ===== */
+@keyframes s-curtain-l-sway {
+  0%, 100% { transform: rotate(0deg); }
+  35%       { transform: rotate(0.6deg); }
+  65%       { transform: rotate(-0.3deg); }
+}
+
+@keyframes s-curtain-r-sway {
+  0%, 100% { transform: rotate(0deg); }
+  40%       { transform: rotate(-0.5deg); }
+  70%       { transform: rotate(0.3deg); }
+}
+
+#s-curtain-l {
+  transform-origin: 140px 26px;
+  transform-box: fill-box;
+  animation: s-curtain-l-sway 7s ease-in-out infinite;
+}
+
+#s-curtain-r {
+  transform-origin: 1300px 26px;
+  transform-box: fill-box;
+  animation: s-curtain-r-sway 9s ease-in-out infinite;
+  animation-delay: -3s;
+}
+
+/* ===== Bookshelf shadow pulse (very subtle depth) ===== */
+@keyframes s-shelf-depth {
+  0%, 100% { opacity: 0.75; }
+  50%       { opacity: 0.85; }
+}
+
+#s-bookshelf {
+  animation: s-shelf-depth 8s ease-in-out infinite;
+}
+
+/* ===== Monitor screen flicker (subtle aliveness) ===== */
+@keyframes s-monitor-life {
+  0%, 88%, 100% { opacity: 1; }
+  90%            { opacity: 0.94; }
+  92%            { opacity: 1; }
+  94%            { opacity: 0.96; }
+}
+
+#s-monitor-screen {
+  animation: s-monitor-life 12s ease-in-out infinite;
+  animation-delay: -4s;
+}
+
+/* ===== Lamp glow breathe ===== */
+@keyframes s-lamp-breathe {
+  0%, 100% { opacity: 0.65; }
+  50%       { opacity: 0.90; }
+}
+
+#s-lamp-pool {
+  animation: s-lamp-breathe 4s ease-in-out infinite;
+}
+
+
+/* ===== String lights subtle shimmer ===== */
+@keyframes s-lights-drift {
+  0%, 100% { opacity: 0.9; }
+  50%       { opacity: 1; }
+}
+
+#s-string-lights {
+  animation: s-lights-drift 8s ease-in-out infinite;
+}
+
+/* ===== Reduce motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  #s-curtain-l,
+  #s-curtain-r,
+  #s-bookshelf,
+  #s-monitor-screen,
+  #s-lamp-pool,
+  #s-string-lights {
+    animation: none;
+  }
+
+  .scene-wrapper svg animate,
+  .scene-wrapper svg animateTransform {
+    dur: "0s";
+  }
+}
