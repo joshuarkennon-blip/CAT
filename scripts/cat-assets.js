@@ -8,6 +8,8 @@
  * 4) explicit fallback argument
  */
 
+import { DEFAULT_CAT_ASSET_CONFIG } from "./cat-default-asset.js";
+
 const VALID_TYPES = new Set(["inline-svg", "svg-url", "video", "spline"]);
 const TYPE_ALIASES = {
   svg: "inline-svg",
@@ -23,6 +25,7 @@ export function resolveCatAssetOptions(stage, fallback = {}) {
 }
 
 export function resolveCatAssetConfig(stage, fallback = {}) {
+  const effectiveFallback = mergeAssetConfigs(DEFAULT_CAT_ASSET_CONFIG, fallback);
   const params = new URLSearchParams(window.location.search);
   const globalConfig = window.CAT_ASSET_CONFIG || {};
   const stageData = stage?.dataset || {};
@@ -32,8 +35,8 @@ export function resolveCatAssetConfig(stage, fallback = {}) {
     normalizeType(stageData.catAsset),
     normalizeType(globalConfig.type),
     normalizeType(globalConfig.provider),
-    normalizeType(fallback.type),
-    normalizeType(fallback.provider),
+    normalizeType(effectiveFallback.type),
+    normalizeType(effectiveFallback.provider),
     "inline-svg"
   );
 
@@ -44,7 +47,7 @@ export function resolveCatAssetConfig(stage, fallback = {}) {
       sanitizeUrl(params.get(`catSrc${stateKey}`)),
       sanitizeUrl(stageData[`catSrc${stateKey}`]),
       sanitizeUrl(globalConfig.stateSources?.[state]),
-      sanitizeUrl(fallback.stateSources?.[state])
+      sanitizeUrl(effectiveFallback.stateSources?.[state])
     );
     if (source) {
       stateSources[state] = source;
@@ -55,27 +58,27 @@ export function resolveCatAssetConfig(stage, fallback = {}) {
     sanitizeUrl(params.get("catSrc")),
     sanitizeUrl(stageData.catSrc),
     sanitizeUrl(globalConfig.src),
-    sanitizeUrl(fallback.src)
+    sanitizeUrl(effectiveFallback.src)
   );
 
   const poster = firstDefined(
     sanitizeUrl(params.get("catPoster")),
     sanitizeUrl(stageData.catPoster),
     sanitizeUrl(globalConfig.poster),
-    sanitizeUrl(fallback.poster)
+    sanitizeUrl(effectiveFallback.poster)
   );
 
   const title = firstDefined(
     sanitizeText(params.get("catTitle")),
     sanitizeText(stageData.catTitle),
     sanitizeText(globalConfig.title),
-    sanitizeText(fallback.title)
+    sanitizeText(effectiveFallback.title)
   );
   const alt = firstDefined(
     sanitizeText(params.get("catLabel")),
     sanitizeText(stageData.catLabel),
     sanitizeText(globalConfig.label),
-    sanitizeText(fallback.alt)
+    sanitizeText(effectiveFallback.alt)
   );
 
   const interactive =
@@ -83,7 +86,7 @@ export function resolveCatAssetConfig(stage, fallback = {}) {
       parseBoolean(params.get("catInteractive")),
       parseBoolean(stageData.catInteractive),
       parseBoolean(globalConfig.interactive),
-      parseBoolean(fallback.interactive)
+      parseBoolean(effectiveFallback.interactive)
     ) ?? false;
 
   return {
@@ -140,4 +143,24 @@ function firstDefined(...values) {
     }
   }
   return null;
+}
+
+function mergeAssetConfigs(base = {}, override = {}) {
+  const baseStateSources =
+    base.stateSources && typeof base.stateSources === "object"
+      ? base.stateSources
+      : {};
+  const overrideStateSources =
+    override.stateSources && typeof override.stateSources === "object"
+      ? override.stateSources
+      : {};
+
+  return {
+    ...base,
+    ...override,
+    stateSources: {
+      ...baseStateSources,
+      ...overrideStateSources,
+    },
+  };
 }

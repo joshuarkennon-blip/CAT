@@ -5,10 +5,11 @@
 import { mountCat } from "./cat.js";
 import { resolveCatAssetOptions } from "./cat-assets.js";
 import { maybeMountCatDebugPanel } from "./cat-debug-panel.js";
+import { DEFAULT_CAT_ASSET_CONFIG } from "./cat-default-asset.js";
 
 function init() {
   const catStage = document.querySelector("[data-cat]");
-  const assetOptions = resolveCatAssetOptions(catStage);
+  const assetOptions = resolveCatAssetOptions(catStage, DEFAULT_CAT_ASSET_CONFIG);
   maybeMountCatDebugPanel({
     stage: catStage,
     initialAsset: assetOptions.asset,

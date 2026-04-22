@@ -5,6 +5,7 @@
 import { mountCat } from "./cat.js";
 import { resolveCatAssetOptions } from "./cat-assets.js";
 import { maybeMountCatDebugPanel } from "./cat-debug-panel.js";
+import { DEFAULT_CAT_ASSET_CONFIG } from "./cat-default-asset.js";
 
 const TOOLS = [
   {
@@ -43,11 +44,16 @@ const EXAMPLES = [
 
 function init() {
   const catStage = document.querySelector("[data-cat]");
+  const assetOptions = resolveCatAssetOptions(catStage, DEFAULT_CAT_ASSET_CONFIG);
   const cat = mountCat(catStage, {
     state: "idle",
-    ...resolveCatAssetOptions(catStage),
+    ...assetOptions,
   });
-  maybeMountCatDebugPanel({ cat, catStage });
+  maybeMountCatDebugPanel({
+    cat,
+    catStage,
+    initialAsset: assetOptions.asset,
+  });
 
   bindComposer(cat);
   bindToolSelect();
