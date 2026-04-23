@@ -969,9 +969,9 @@ const SCENE_SVG = /* html */`
 
   <!-- Picture frame on wall above side table -->
   <g id="s-picture-frame" transform="translate(22,368)">
-    <!-- Hanging wire -->
-    <line x1="28" y1="-1" x2="10" y2="-7" stroke="#c0bdb8" stroke-width="0.7" stroke-linecap="round"/>
-    <line x1="28" y1="-1" x2="46" y2="-7" stroke="#c0bdb8" stroke-width="0.7" stroke-linecap="round"/>
+    <!-- Hanging wire — attaches at frame sides, meets at nail -->
+    <line x1="10" y1="3" x2="28" y2="-8" stroke="#c0bdb8" stroke-width="0.7" stroke-linecap="round"/>
+    <line x1="46" y1="3" x2="28" y2="-8" stroke="#c0bdb8" stroke-width="0.7" stroke-linecap="round"/>
     <circle cx="28" cy="-8" r="1.4" fill="#c0bdb8"/>
     <!-- Outer frame — slim dark walnut -->
     <rect x="0" y="0" width="56" height="44" fill="#1c0f06" rx="3"/>
