@@ -151,10 +151,10 @@ function showBubble(anchorEl, text, dur = 1800) {
     transform:translate(-50%,-100%) scale(0.5);
     background:#fffdf8;
     color:#2a1a0a;
-    padding:5px 11px;
-    border-radius:14px;
+    padding:9px 16px;
+    border-radius:18px;
     font-family:'Inter',sans-serif;
-    font-size:13px;
+    font-size:16px;
     font-weight:600;
     box-shadow:0 3px 14px rgba(0,0,0,0.28);
     pointer-events:none;
