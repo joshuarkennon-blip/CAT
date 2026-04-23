@@ -535,6 +535,294 @@
   background: var(--accent-orange-soft);
 }
 
+/* ─── Print styles ────────────────────────────────────────────────────────── */
+/*
+ * Used by printReport() in report.js.
+ * body.printing is applied before window.print() so the @media print rules
+ * have a hook to also apply in the printing-preview class path.
+ */
+
+@media print {
+  /* Reset page to clean white portrait */
+  @page {
+    size: A4 portrait;
+    margin: 18mm 16mm 18mm 16mm;
+  }
+
+  /* Base document */
+  html,
+  body {
+    background: #fff !important;
+    color: #111 !important;
+    font-family: "Inter", system-ui, sans-serif;
+    font-size: 11pt;
+    line-height: 1.5;
+  }
+
+  /* Hide chrome that doesn't belong in a printed document */
+  .app-header,
+  .aside-toc,
+  .aside-cat,
+  .report-section__actions,
+  .legal-footer,
+  .cat-overlay,
+  [data-export],
+  [data-copy] {
+    display: none !important;
+  }
+
+  /* Remove app-shell constraints so the article flows naturally */
+  .app-shell {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Collapse the two-column layout to a single column */
+  .report-layout {
+    display: block !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  article {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Report header */
+  .report-header {
+    border-bottom: 1pt solid #ccc !important;
+    padding-bottom: 10pt !important;
+    margin-bottom: 12pt !important;
+  }
+
+  .report-header::before {
+    display: none !important;
+  }
+
+  .report-header__meta {
+    color: #555 !important;
+    font-size: 8pt !important;
+  }
+
+  .report-header__meta span + span {
+    border-left-color: #ccc !important;
+  }
+
+  .report-header__title {
+    font-size: 14pt !important;
+    color: #000 !important;
+  }
+
+  .report-header__summary {
+    color: #333 !important;
+    font-size: 10pt !important;
+  }
+
+  /* Section cards — flatten backgrounds, remove shadows */
+  .report-section {
+    background: #fff !important;
+    border: 1pt solid #ddd !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 10pt 12pt !important;
+    margin-bottom: 14pt !important;
+    break-inside: avoid;
+  }
+
+  .report-section__head {
+    border-bottom-color: #ddd !important;
+  }
+
+  .report-section__title-group .eyebrow {
+    color: #888 !important;
+  }
+
+  .report-section__title {
+    color: #000 !important;
+    font-size: 12pt !important;
+  }
+
+  /* Finding cards — keep colored left borders, flatten everything else */
+  .finding {
+    background: #fff !important;
+    border: 1pt solid #e0e0e0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 6pt;
+  }
+
+  .finding[data-severity="high"] {
+    border-left: 3pt solid #e53e3e !important;
+  }
+  .finding[data-severity="medium"] {
+    border-left: 3pt solid #d97706 !important;
+  }
+  .finding[data-severity="low"] {
+    border-left: 3pt solid #3b82f6 !important;
+  }
+  .finding[data-severity="ok"] {
+    border-left: 3pt solid #22c55e !important;
+  }
+
+  .finding__title {
+    color: #111 !important;
+    font-size: 10pt !important;
+  }
+
+  .finding__detail {
+    color: #333 !important;
+    font-size: 9pt !important;
+  }
+
+  .finding__detail code {
+    background: #f4f4f4 !important;
+    border: 1pt solid #ddd !important;
+    color: #1a56db !important;
+    padding: 1pt 4pt !important;
+  }
+
+  .finding__meta {
+    color: #666 !important;
+    font-size: 8pt !important;
+  }
+
+  /* Severity badge — plain text style for print */
+  .finding__tag {
+    background: transparent !important;
+    border-color: #ccc !important;
+    color: #444 !important;
+    font-size: 7pt !important;
+    padding: 2pt 5pt !important;
+  }
+
+  .finding[data-severity="high"] .finding__tag {
+    color: #c53030 !important;
+    border-color: #c53030 !important;
+  }
+  .finding[data-severity="medium"] .finding__tag {
+    color: #92400e !important;
+    border-color: #92400e !important;
+  }
+  .finding[data-severity="low"] .finding__tag {
+    color: #1e40af !important;
+    border-color: #1e40af !important;
+  }
+  .finding[data-severity="ok"] .finding__tag {
+    color: #166534 !important;
+    border-color: #166534 !important;
+  }
+
+  /* Recommendation cards */
+  .recommendation {
+    background: #fff !important;
+    border: 1pt solid #e0e0e0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 6pt;
+  }
+
+  .recommendation::before {
+    color: #c05621 !important;
+  }
+
+  .recommendation__body h4 {
+    color: #111 !important;
+    font-size: 10pt !important;
+  }
+
+  .recommendation__body p {
+    color: #333 !important;
+    font-size: 9pt !important;
+  }
+
+  .recommendation__body code {
+    background: #f4f4f4 !important;
+    border: 1pt solid #ddd !important;
+    color: #1a56db !important;
+  }
+
+  /* Next step items */
+  .next-step {
+    background: #fff !important;
+    border: 1pt solid #e0e0e0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    color: #333 !important;
+    font-size: 9pt !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 4pt;
+  }
+
+  .next-step__check {
+    border-color: #aaa !important;
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  .next-step__check::after {
+    display: none !important;
+  }
+
+  /* Page-break control */
+  .finding,
+  .recommendation,
+  .next-step {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .report-section {
+    break-before: auto;
+  }
+
+  /* Remove all box-shadow and blur filters */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -webkit-filter: none !important;
+  }
+
+  /* Show URLs after external links */
+  a[href^="http"]::after,
+  a[href^="https"]::after {
+    content: " (" attr(href) ")";
+    font-size: 8pt;
+    color: #555;
+    word-break: break-all;
+  }
+
+  /* But not for nav links inside the TOC or wordmark */
+  .aside-toc a::after,
+  .wordmark a::after,
+  .app-header a::after {
+    content: none !important;
+  }
+
+  /* Printed page footer via CSS counters */
+  @page {
+    @bottom-right {
+      content: "Page " counter(page) " of " counter(pages);
+      font-family: "Inter", system-ui, sans-serif;
+      font-size: 8pt;
+      color: #888;
+    }
+    @bottom-left {
+      content: "CAT — Companion Analytics Toolkit";
+      font-family: "Inter", system-ui, sans-serif;
+      font-size: 8pt;
+      color: #aaa;
+    }
+  }
+}
+
 /* ─── Mobile: fixed corner cat ────────────────────────────────────────────── */
 @media (max-width: 959px) {
   .report-layout {
