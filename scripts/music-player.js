@@ -133,7 +133,7 @@ export function mountMusicPlayer(scene) {
   });
 
   audio.addEventListener("ended", () => {
-    isPlaying = false;
+    // isPlaying stays true so skip() sees wasPlaying=true and auto-plays next track
     skip(+1);
   });
 

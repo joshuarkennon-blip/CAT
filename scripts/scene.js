@@ -968,37 +968,81 @@ const SCENE_SVG = /* html */`
        ══════════════════════════════════════════════════════════════════════ -->
 
   <!-- Picture frame on wall above side table -->
-  <g id="s-picture-frame" transform="translate(20,362)">
+  <g id="s-picture-frame" transform="translate(22,368)">
     <!-- Hanging wire -->
-    <line x1="38" y1="-1" x2="12" y2="-8" stroke="#999" stroke-width="0.8" stroke-linecap="round"/>
-    <line x1="38" y1="-1" x2="64" y2="-8" stroke="#999" stroke-width="0.8" stroke-linecap="round"/>
-    <circle cx="38" cy="-9" r="1.8" fill="#999"/>
-    <!-- Frame: slim dark walnut -->
-    <rect x="0" y="0" width="76" height="50" fill="#1e1008" rx="4"/>
-    <!-- Frame face (slightly lighter wood tone) -->
-    <rect x="2" y="2" width="72" height="46" fill="#2a1610" rx="3"/>
-    <!-- Frame top/left rim light -->
-    <rect x="2" y="2" width="72" height="2" fill="#5a3018" opacity="0.6" rx="2"/>
-    <rect x="2" y="2" width="2" height="46" fill="#5a3018" opacity="0.5" rx="2"/>
-    <!-- Frame bottom/right shadow -->
-    <rect x="72" y="2" width="2" height="46" fill="#080402" opacity="0.7" rx="2"/>
-    <rect x="2" y="46" width="72" height="2" fill="#080402" opacity="0.6" rx="2"/>
-    <!-- Background: deep navy blue -->
-    <rect x="5" y="5" width="66" height="40" fill="#1a2848" rx="2"/>
-    <!-- Subtle inner glow along edges of background -->
-    <rect x="5" y="5" width="66" height="40" fill="url(#s-wall-light)" opacity="0.15" rx="2"/>
-    <!-- "For RK" bold text -->
-    <text x="38" y="20"
-          font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
-          font-size="9.5" font-weight="900" text-anchor="middle"
-          fill="#e8d8a8" letter-spacing="0.5">For RK</text>
-    <!-- Thin rule between lines -->
-    <line x1="14" y1="24" x2="62" y2="24" stroke="#c8aa68" stroke-width="0.6" opacity="0.5"/>
-    <!-- "AAF ❤" bold text -->
-    <text x="38" y="37"
-          font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
-          font-size="9.5" font-weight="900" text-anchor="middle"
-          fill="#e8d8a8" letter-spacing="0.5">AAF &#x2764;</text>
+    <line x1="28" y1="-1" x2="10" y2="-7" stroke="#c0bdb8" stroke-width="0.7" stroke-linecap="round"/>
+    <line x1="28" y1="-1" x2="46" y2="-7" stroke="#c0bdb8" stroke-width="0.7" stroke-linecap="round"/>
+    <circle cx="28" cy="-8" r="1.4" fill="#c0bdb8"/>
+    <!-- Outer frame — slim dark walnut -->
+    <rect x="0" y="0" width="56" height="44" fill="#1c0f06" rx="3"/>
+    <!-- Frame face — lighter walnut band -->
+    <rect x="2" y="2" width="52" height="40" fill="#2c1a0c" rx="2"/>
+    <!-- Top-left light edge -->
+    <rect x="2" y="2" width="52" height="1.5" fill="#5a3018" opacity="0.5"/>
+    <rect x="2" y="2" width="1.5" height="40" fill="#5a3018" opacity="0.4"/>
+    <!-- Bottom-right shadow edge -->
+    <rect x="52.5" y="2" width="1.5" height="40" fill="#06030100" opacity="0.7"/>
+    <rect x="2" y="40.5" width="52" height="1.5" fill="#060302" opacity="0.6"/>
+    <!-- Canvas — white -->
+    <rect x="4" y="4" width="48" height="36" fill="#f7f5f0"/>
+
+    <!-- ── Pixel-art cat face ──────────────────────────────────────────────
+         10 × 8 grid · each pixel 4 × 4 SVG units
+         art origin (10, 8) · art size 40 × 32 · centered in 48 × 36 canvas
+         B = #1a1a1a  O = #d9702a  P = #f5b0a0
+    ─────────────────────────────────────────────────────────────────────── -->
+
+    <!-- row 0 · y=8 · ear tips -->
+    <rect x="18" y="8"  width="4" height="4" fill="#1a1a1a"/><!-- col 2 -->
+    <rect x="38" y="8"  width="4" height="4" fill="#1a1a1a"/><!-- col 7 -->
+
+    <!-- row 1 · y=12 · ears -->
+    <rect x="14" y="12" width="4" height="4" fill="#1a1a1a"/><!-- col 1 -->
+    <rect x="18" y="12" width="4" height="4" fill="#d9702a"/><!-- col 2 -->
+    <rect x="22" y="12" width="4" height="4" fill="#f5b0a0"/><!-- col 3 inner ear -->
+    <rect x="34" y="12" width="4" height="4" fill="#f5b0a0"/><!-- col 6 inner ear -->
+    <rect x="38" y="12" width="4" height="4" fill="#d9702a"/><!-- col 7 -->
+    <rect x="42" y="12" width="4" height="4" fill="#1a1a1a"/><!-- col 8 -->
+
+    <!-- row 2 · y=16 · head top + inner ears -->
+    <rect x="10" y="16" width="4" height="4" fill="#1a1a1a"/><!-- col 0 -->
+    <rect x="14" y="16" width="4" height="4" fill="#d9702a"/><!-- col 1 -->
+    <rect x="18" y="16" width="4" height="4" fill="#d9702a"/><!-- col 2 -->
+    <rect x="22" y="16" width="4" height="4" fill="#f5b0a0"/><!-- col 3 -->
+    <rect x="26" y="16" width="4" height="4" fill="#1a1a1a"/><!-- col 4 -->
+    <rect x="30" y="16" width="4" height="4" fill="#1a1a1a"/><!-- col 5 -->
+    <rect x="34" y="16" width="4" height="4" fill="#f5b0a0"/><!-- col 6 -->
+    <rect x="38" y="16" width="4" height="4" fill="#d9702a"/><!-- col 7 -->
+    <rect x="42" y="16" width="4" height="4" fill="#d9702a"/><!-- col 8 -->
+    <rect x="46" y="16" width="4" height="4" fill="#1a1a1a"/><!-- col 9 -->
+
+    <!-- row 3 · y=20 · forehead (solid orange) -->
+    <rect x="10" y="20" width="40" height="4" fill="#d9702a"/>
+
+    <!-- row 4 · y=24 · eyes -->
+    <rect x="10" y="24" width="4" height="4" fill="#d9702a"/><!-- col 0 -->
+    <rect x="14" y="24" width="4" height="4" fill="#1a1a1a"/><!-- col 1 eye-l -->
+    <rect x="18" y="24" width="4" height="4" fill="#1a1a1a"/><!-- col 2 eye-l -->
+    <rect x="22" y="24" width="8" height="4" fill="#d9702a"/><!-- cols 3-4 bridge -->
+    <rect x="30" y="24" width="8" height="4" fill="#d9702a"/><!-- cols 5-6 bridge -->
+    <rect x="38" y="24" width="4" height="4" fill="#1a1a1a"/><!-- col 7 eye-r -->
+    <rect x="42" y="24" width="4" height="4" fill="#1a1a1a"/><!-- col 8 eye-r -->
+    <rect x="46" y="24" width="4" height="4" fill="#d9702a"/><!-- col 9 -->
+
+    <!-- row 5 · y=28 · nose -->
+    <rect x="10" y="28" width="16" height="4" fill="#d9702a"/><!-- cols 0-3 -->
+    <rect x="26" y="28" width="4"  height="4" fill="#1a1a1a"/><!-- col 4  nose dot -->
+    <rect x="30" y="28" width="20" height="4" fill="#d9702a"/><!-- cols 5-9 -->
+
+    <!-- row 6 · y=32 · mouth + whisker marks -->
+    <rect x="10" y="32" width="8"  height="4" fill="#d9702a"/><!-- cols 0-1 -->
+    <rect x="18" y="32" width="4"  height="4" fill="#1a1a1a"/><!-- col 2  whisker tick -->
+    <rect x="22" y="32" width="12" height="4" fill="#d9702a"/><!-- cols 3-5 -->
+    <rect x="34" y="32" width="4"  height="4" fill="#1a1a1a"/><!-- col 6  whisker tick -->
+    <rect x="38" y="32" width="12" height="4" fill="#d9702a"/><!-- cols 7-9 -->
+
+    <!-- row 7 · y=36 · chin (no corners) -->
+    <rect x="14" y="36" width="32" height="4" fill="#d9702a"/><!-- cols 1-8 -->
   </g>
 
   <!-- Elegant side table -->

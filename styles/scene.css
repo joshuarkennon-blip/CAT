@@ -195,6 +195,12 @@
   pointer-events: all;
 }
 
+/* ===== Picture frame — own compositor layer so curtain animation doesn't bleed ===== */
+#s-picture-frame {
+  will-change: transform;
+  isolation: isolate;
+}
+
 /* ===== Desk item interaction cursors ===== */
 #s-mug,
 #s-candle,
