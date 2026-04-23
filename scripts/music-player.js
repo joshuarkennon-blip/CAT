@@ -17,6 +17,26 @@ export function mountMusicPlayer(scene) {
   let isPlaying = false;
   let trackLoaded = false;
 
+  // --- Session persistence ---
+  const SESSION_KEY = "cat-music-state";
+
+  function saveState() {
+    try {
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+        trackIndex: currentIndex,
+        currentTime: audio.currentTime,
+        isPlaying,
+      }));
+    } catch (_) { /* ignore */ }
+  }
+
+  function loadSavedState() {
+    try {
+      const raw = sessionStorage.getItem(SESSION_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) { return null; }
+  }
+
   // --- Audio element ---
   const audio = new Audio();
   audio.volume = 0.15;
@@ -95,18 +115,21 @@ export function mountMusicPlayer(scene) {
     progressFill.style.width = "0%";
     timeEl.textContent = "0:00";
     trackLoaded = true;
+    saveState();
   }
 
   function play() {
     audio.play().catch(() => {});
     isPlaying = true;
     updateCenterButton();
+    saveState();
   }
 
   function pause() {
     audio.pause();
     isPlaying = false;
     updateCenterButton();
+    saveState();
   }
 
   function togglePlay() {
@@ -130,6 +153,8 @@ export function mountMusicPlayer(scene) {
     const pct = (audio.currentTime / audio.duration) * 100;
     progressFill.style.width = `${pct}%`;
     timeEl.textContent = formatTime(audio.currentTime);
+    // Throttle saves — only every ~5 s so we don't hammer sessionStorage
+    if (Math.floor(audio.currentTime) % 5 === 0) saveState();
   });
 
   audio.addEventListener("ended", () => {
@@ -303,6 +328,23 @@ export function mountMusicPlayer(scene) {
     });
 
     return uniqueTargets.length > 0;
+  }
+
+  // --- Auto-restore saved session ---
+  const saved = loadSavedState();
+  if (saved) {
+    loadTrack(saved.trackIndex ?? 0);
+    if (saved.isPlaying) {
+      // Open the player UI and resume playback
+      openPlayer();
+      // Wait for the audio element to be seekable, then seek + play
+      const onCanPlay = () => {
+        audio.removeEventListener("canplay", onCanPlay);
+        if (saved.currentTime > 0) audio.currentTime = saved.currentTime;
+        play();
+      };
+      audio.addEventListener("canplay", onCanPlay);
+    }
   }
 
   // Try attaching immediately; if SVG not ready yet, poll briefly

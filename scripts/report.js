@@ -8,6 +8,7 @@ import { maybeMountCatDebugPanel } from "./cat-debug-panel.js";
 import { DEFAULT_CAT_ASSET_CONFIG } from "./cat-default-asset.js";
 import { initReportEntrance } from "./cat-transition.js";
 import { mountReportChat } from "./report-chat.js";
+import { mountMusicPlayer } from "./music-player.js";
 
 function init() {
   const catStage = document.querySelector("[data-cat]");
@@ -33,6 +34,9 @@ function init() {
   });
 
   initReportEntrance();
+
+  // Mount music player so it persists from homepage (auto-restores via sessionStorage)
+  mountMusicPlayer(null);
 
   // Rename "Export .md" buttons to "Export notes"
   document.querySelectorAll("[data-export='markdown']").forEach((btn) => {
