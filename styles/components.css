@@ -309,6 +309,191 @@
   transform: translateX(2px);
 }
 
+/* Composer toolbar: tool select + attach + context buttons */
+.composer__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.composer__ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: transparent;
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
+}
+
+.composer__ghost:hover {
+  border-color: var(--accent-orange);
+  color: var(--text-primary);
+  background: var(--accent-orange-soft);
+}
+
+.composer__ghost[aria-expanded="true"],
+.composer__ghost.is-active {
+  border-color: var(--accent-blue);
+  color: var(--text-primary);
+  background: var(--accent-blue-soft);
+}
+
+.composer__ghost.has-value {
+  border-color: var(--accent-orange);
+  color: var(--text-primary);
+}
+
+.composer__ghost-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* Attachment chip rack */
+.composer__attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.composer__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--surface-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  padding: 2px var(--space-2) 2px var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  max-width: 100%;
+}
+
+.composer__chip--primary {
+  border-color: var(--accent-orange);
+  color: var(--text-primary);
+  background: var(--accent-orange-soft);
+}
+
+.composer__chip--context {
+  border-color: var(--border-strong);
+}
+
+.composer__chip-role {
+  font-size: 10px;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.composer__chip--primary .composer__chip-role {
+  color: var(--accent-orange);
+}
+
+.composer__chip-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 180px;
+}
+
+.composer__chip-size {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.composer__chip-remove {
+  background: transparent;
+  border: 0;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: var(--fs-md);
+  line-height: 1;
+  padding: 0 2px;
+  border-radius: 50%;
+  transition: color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
+}
+
+.composer__chip-remove:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Context panel */
+.composer__context {
+  display: flex;
+}
+
+.composer__context-input {
+  flex: 1;
+  background: var(--surface-1);
+  border: 1px dashed var(--border-default);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  padding: var(--space-2) var(--space-3);
+  resize: vertical;
+  line-height: var(--lh-normal);
+  border-radius: var(--radius-md);
+  min-height: 44px;
+  max-height: 160px;
+  width: 100%;
+}
+
+.composer__context-input:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  border-style: solid;
+  box-shadow: var(--shadow-glow-blue);
+}
+
+.composer__context-input::placeholder {
+  color: var(--text-faint);
+}
+
+/* Monitor-scaled variants */
+.monitor-composer .composer__toolbar {
+  gap: var(--space-1);
+}
+
+.monitor-composer .composer__ghost {
+  font-size: 10px;
+  padding: 3px var(--space-2);
+}
+
+.monitor-composer .composer__ghost-icon {
+  width: 11px;
+  height: 11px;
+}
+
+.monitor-composer .composer__chip {
+  font-size: 10px;
+  padding: 1px var(--space-2) 1px var(--space-2);
+}
+
+.monitor-composer .composer__chip-name {
+  max-width: 120px;
+}
+
+.monitor-composer .composer__context-input {
+  font-size: 11px;
+  min-height: 32px;
+  max-height: 80px;
+}
+
 /* Dropdown */
 .tool-select {
   position: relative;
@@ -846,6 +1031,49 @@
   font-size: var(--fs-sm);
   padding: var(--space-2) 0;
   border-bottom: 1px solid var(--border-subtle);
+}
+
+/* Context card */
+.tool-result__card--context {
+  border-left: 3px solid var(--accent-blue);
+}
+
+.tool-result__ctx-list {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.tool-result__ctx-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: var(--space-3);
+  align-items: baseline;
+}
+
+.tool-result__ctx-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+}
+
+.tool-result__ctx-val {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.tool-result__ctx-val em {
+  color: var(--text-muted);
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+}
+
+@media (max-width: 600px) {
+  .tool-result__ctx-row { grid-template-columns: 1fr; }
 }
 
 /* Pass state */

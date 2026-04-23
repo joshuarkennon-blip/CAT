@@ -33,6 +33,10 @@ export function renderReport(result, container) {
   `;
   container.appendChild(banner);
 
+  if (result.context) {
+    container.appendChild(contextCard(result.context));
+  }
+
   if (result.summary && Object.keys(result.summary).length) {
     container.appendChild(summaryCard(result.summary));
   }
@@ -71,6 +75,49 @@ export function renderReport(result, container) {
 
   wireCopyAll(container, result);
   wireExport(container, result);
+}
+
+function contextCard(context) {
+  const card = el('div', 'tool-result__card tool-result__card--context');
+  const parts = [`<h3 class="tool-result__card-title">Context applied</h3>`];
+  const list = [];
+
+  if (context.userPrompt) {
+    list.push(`<div class="tool-result__ctx-row"><span class="tool-result__ctx-label">Prompt</span><span class="tool-result__ctx-val">${escape(context.userPrompt)}</span></div>`);
+  }
+  if (context.instructions) {
+    list.push(`<div class="tool-result__ctx-row"><span class="tool-result__ctx-label">Instructions</span><span class="tool-result__ctx-val">${escape(context.instructions)}</span></div>`);
+  }
+  if (context.primaryFile) {
+    list.push(`<div class="tool-result__ctx-row"><span class="tool-result__ctx-label">File</span><span class="tool-result__ctx-val">${escape(context.primaryFile.name)} <em>(${formatBytes(context.primaryFile.size)})</em></span></div>`);
+  }
+  if (context.supportingFiles?.length) {
+    const files = context.supportingFiles
+      .map(f => `${escape(f.name)} <em>(${formatBytes(f.size)})</em>`)
+      .join(', ');
+    list.push(`<div class="tool-result__ctx-row"><span class="tool-result__ctx-label">Supporting</span><span class="tool-result__ctx-val">${files}</span></div>`);
+  }
+
+  parts.push(`<div class="tool-result__ctx-list">${list.join('')}</div>`);
+  card.innerHTML = parts.join('');
+  return card;
+}
+
+function escape(str) {
+  return String(str).replace(/[&<>"']/g, (s) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  }[s]));
+}
+
+function formatBytes(bytes) {
+  if (!Number.isFinite(bytes)) return '';
+  if (bytes < 1024) return `${bytes}B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)}KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
 }
 
 function summaryCard(summary) {
@@ -164,6 +211,16 @@ function wireExport(container, result) {
 
 function resultToMarkdown(result) {
   const lines = [`# CAT Report — ${toolLabel(result.tool)}`, `**Status:** ${result.status}`, ''];
+  if (result.context) {
+    lines.push('## Context');
+    if (result.context.userPrompt)    lines.push(`- **Prompt:** ${result.context.userPrompt}`);
+    if (result.context.instructions)  lines.push(`- **Instructions:** ${result.context.instructions}`);
+    if (result.context.primaryFile)   lines.push(`- **File:** ${result.context.primaryFile.name} (${formatBytes(result.context.primaryFile.size)})`);
+    if (result.context.supportingFiles?.length) {
+      lines.push(`- **Supporting files:** ${result.context.supportingFiles.map(f => `${f.name} (${formatBytes(f.size)})`).join(', ')}`);
+    }
+    lines.push('');
+  }
   if (result.summary) {
     lines.push('## Summary');
     for (const [k, v] of Object.entries(result.summary)) {

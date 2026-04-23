@@ -22,6 +22,14 @@ const EXAMPLES = [
 
 let _selectedToolId = null;
 let _toolResultEl = null;
+let _attachments = [];
+let _attachmentsEl = null;
+let _fileInputEl = null;
+let _contextPanelEl = null;
+let _contextInputEl = null;
+let _contextToggleEl = null;
+
+const MAX_ATTACHMENT_BYTES = 20 * 1024 * 1024; // 20MB
 
 function init() {
   const hero         = document.querySelector("[data-hero]");
@@ -45,10 +53,17 @@ function init() {
   });
 
   _toolResultEl = getOrCreateToolResult();
+  _attachmentsEl = document.querySelector("[data-attachments]");
+  _fileInputEl = document.querySelector("[data-file-input]");
+  _contextPanelEl = document.querySelector("[data-context-panel]");
+  _contextInputEl = document.querySelector("[data-context-input]");
+  _contextToggleEl = document.querySelector("[data-context-toggle]");
 
   bindComposer(cat, hero);
   bindToolSelect();
   bindExamples();
+  bindAttachments(cat);
+  bindContextToggle();
 }
 
 function getOrCreateToolResult() {
@@ -97,13 +112,13 @@ function bindComposer(cat, hero) {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const text = input.value.trim();
-    if (!text && !_selectedToolId) return;
+    if (!text && !_selectedToolId && !_attachments.length) return;
     await runTool(text, cat);
   });
 }
 
 async function runTool(text, cat) {
-  const { tool, confidence } = route(text, _selectedToolId);
+  const { tool } = route(text, _selectedToolId);
 
   if (!tool) {
     cat?.setState("attentive");
@@ -120,7 +135,9 @@ async function runTool(text, cat) {
       cat?.setState("idle");
       return;
     }
-    const result = run(inputData);
+    const context = buildContext(text, tool);
+    const result = run(inputData, context) ?? {};
+    result.context = summarizeContext(context);
     renderReport(result, _toolResultEl);
     _toolResultEl.scrollIntoView({ behavior: "smooth" });
     cat?.setState("celebratory");
@@ -133,7 +150,15 @@ async function runTool(text, cat) {
 
 async function collectInput(tool) {
   if (tool.inputType === "file" || tool.inputType === "file-or-text") {
-    return promptFile(tool.fileAccept);
+    const primary = _attachments.find(a => a.role === "primary");
+    if (primary) return parseAttachmentBody(primary);
+    if (tool.inputType === "file-or-text") {
+      const typed = document.querySelector("[data-composer-input]")?.value.trim() ?? "";
+      if (typed) {
+        try { return JSON.parse(typed); } catch { return typed; }
+      }
+    }
+    return openFilePicker(tool.fileAccept);
   }
   if (tool.inputType === "form") {
     return promptForm(tool.id);
@@ -141,20 +166,59 @@ async function collectInput(tool) {
   return document.querySelector("[data-composer-input]")?.value.trim() ?? "";
 }
 
-function promptFile(accept) {
+function openFilePicker(accept) {
   return new Promise(resolve => {
-    const fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.accept = accept;
-    fileInput.addEventListener("change", async () => {
-      const file = fileInput.files[0];
+    const picker = document.createElement("input");
+    picker.type = "file";
+    picker.accept = accept ?? "";
+    picker.addEventListener("change", async () => {
+      const file = picker.files[0];
       if (!file) return resolve(null);
-      const text = await file.text();
-      try { resolve(JSON.parse(text)); }
-      catch { resolve(text); }
+      const att = await readFileAsAttachment(file, "primary");
+      if (att) {
+        _attachments = [att, ..._attachments.filter(a => a.role !== "primary")];
+        renderAttachments();
+      }
+      resolve(att ? parseAttachmentBody(att) : null);
     });
-    fileInput.click();
+    picker.click();
   });
+}
+
+function parseAttachmentBody(att) {
+  try { return JSON.parse(att.text); }
+  catch { return att.text; }
+}
+
+function buildContext(text, tool) {
+  const instructions = _contextInputEl?.value.trim() ?? "";
+  const supporting = _attachments
+    .filter(a => a.role !== "primary")
+    .map(a => ({ name: a.name, size: a.size, text: a.text }));
+  const primary = _attachments.find(a => a.role === "primary");
+
+  return {
+    toolId: tool.id,
+    userPrompt: text,
+    instructions,
+    supportingFiles: supporting,
+    primaryFile: primary ? { name: primary.name, size: primary.size } : null,
+  };
+}
+
+function summarizeContext(context) {
+  const hasContent =
+    context.instructions ||
+    context.userPrompt ||
+    context.supportingFiles?.length ||
+    context.primaryFile;
+  if (!hasContent) return null;
+  return {
+    userPrompt: context.userPrompt || null,
+    instructions: context.instructions || null,
+    primaryFile: context.primaryFile,
+    supportingFiles: (context.supportingFiles ?? []).map(f => ({ name: f.name, size: f.size })),
+  };
 }
 
 function promptForm(toolId) {
@@ -364,6 +428,137 @@ function bindToolSelect() {
     setSelected(opt.dataset.toolId);
     setOpen(false);
   });
+}
+
+function bindAttachments(cat) {
+  const attachTrigger = document.querySelector("[data-attach-trigger]");
+  if (!attachTrigger || !_fileInputEl || !_attachmentsEl) return;
+
+  attachTrigger.addEventListener("click", () => {
+    _fileInputEl.click();
+  });
+
+  _fileInputEl.addEventListener("change", async () => {
+    const files = Array.from(_fileInputEl.files ?? []);
+    if (!files.length) return;
+
+    for (const file of files) {
+      const hasPrimary = _attachments.some(a => a.role === "primary");
+      const role = hasPrimary ? "context" : "primary";
+      const att = await readFileAsAttachment(file, role);
+      if (att) _attachments.push(att);
+    }
+
+    _fileInputEl.value = "";
+    renderAttachments();
+    cat?.setState("attentive");
+  });
+
+  _attachmentsEl.addEventListener("click", (e) => {
+    const removeBtn = e.target.closest("[data-remove-attachment]");
+    if (!removeBtn) return;
+    const id = removeBtn.dataset.removeAttachment;
+    const removed = _attachments.find(a => a.id === id);
+    _attachments = _attachments.filter(a => a.id !== id);
+
+    // If we removed the primary, promote the next one so tools can still run.
+    if (removed?.role === "primary") {
+      const next = _attachments.find(a => a.role === "context");
+      if (next) next.role = "primary";
+    }
+
+    renderAttachments();
+  });
+}
+
+function bindContextToggle() {
+  if (!_contextToggleEl || !_contextPanelEl || !_contextInputEl) return;
+
+  const setOpen = (open) => {
+    _contextToggleEl.setAttribute("aria-expanded", String(open));
+    _contextPanelEl.hidden = !open;
+    _contextToggleEl.classList.toggle("is-active", open);
+    if (open) _contextInputEl.focus();
+  };
+
+  _contextToggleEl.addEventListener("click", () => {
+    const isOpen = _contextToggleEl.getAttribute("aria-expanded") === "true";
+    setOpen(!isOpen);
+  });
+
+  _contextInputEl.addEventListener("input", () => {
+    _contextToggleEl.classList.toggle(
+      "has-value",
+      _contextInputEl.value.trim().length > 0
+    );
+  });
+}
+
+async function readFileAsAttachment(file, role) {
+  if (!file) return null;
+  if (file.size > MAX_ATTACHMENT_BYTES) {
+    console.warn(`Skipped ${file.name}: exceeds ${MAX_ATTACHMENT_BYTES} byte limit.`);
+    return null;
+  }
+  const text = await file.text();
+  return {
+    id: `att-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    name: file.name,
+    size: file.size,
+    type: file.type || inferTypeFromName(file.name),
+    role,
+    text,
+  };
+}
+
+function inferTypeFromName(name) {
+  const ext = name.split(".").pop()?.toLowerCase();
+  return ext ? `application/${ext}` : "application/octet-stream";
+}
+
+function renderAttachments() {
+  if (!_attachmentsEl) return;
+  if (!_attachments.length) {
+    _attachmentsEl.hidden = true;
+    _attachmentsEl.innerHTML = "";
+    return;
+  }
+
+  _attachmentsEl.hidden = false;
+  _attachmentsEl.innerHTML = _attachments
+    .map(
+      (a) => `
+        <span class="composer__chip composer__chip--${a.role}" title="${escapeHtml(a.name)}">
+          <span class="composer__chip-role">${a.role === "primary" ? "file" : "ctx"}</span>
+          <span class="composer__chip-name">${escapeHtml(a.name)}</span>
+          <span class="composer__chip-size">${formatBytes(a.size)}</span>
+          <button
+            type="button"
+            class="composer__chip-remove"
+            data-remove-attachment="${a.id}"
+            aria-label="Remove ${escapeHtml(a.name)}"
+          >×</button>
+        </span>
+      `
+    )
+    .join("");
+}
+
+function formatBytes(bytes) {
+  if (!Number.isFinite(bytes)) return "";
+  if (bytes < 1024) return `${bytes}B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)}KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, (s) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  }[s]));
 }
 
 function bindExamples() {
