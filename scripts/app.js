@@ -135,13 +135,12 @@ async function runTool(text, cat) {
   try {
     const { run } = await tool.module();
     const inputData = await collectInput(tool);
-    if (inputData === null) {
+    const result = inputData !== null ? await run(inputData) : null;
+    if (result === null) {
       cat?.setState("idle");
       return;
     }
-    const result = run(inputData);
     cat?.setState("celebratory");
-    // Fade to report page with cat transition, passing result via sessionStorage
     sessionStorage.setItem("cat-report-data", JSON.stringify(result));
     setTimeout(() => transitionToReport(), 600);
   } catch (err) {
@@ -321,7 +320,7 @@ function bindToolSelect() {
     if (!trigger.contains(e.target) && !menu.contains(e.target)) {
       setOpen(false);
     }
-  });
+  }, { capture: true });
 
   menu.addEventListener("focusin", (e) => {
     const option = e.target.closest(".tool-select__option");

@@ -61,6 +61,7 @@ export function analyzeSequencing(json) {
           : 'pass',
     issues: [...base.issues, ...issues].sort(bySeverity),
     sequenceMap,
+    architecture: base.architecture ?? null,
     summary: base.summary,
     recommendations: [
       ...base.recommendations,

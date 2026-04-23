@@ -25,7 +25,7 @@ function init() {
     initialAsset: assetOptions.asset,
   });
 
-  initReportEntrance(catStage);
+  initReportEntrance();
 
   document.querySelectorAll("[data-copy]").forEach((btn) => {
     btn.addEventListener("click", () => handleCopy(btn));

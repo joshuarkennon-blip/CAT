@@ -1,8 +1,17 @@
 /* CAT — Report view
  * Structured findings → recommendations → next steps. Lofi night aesthetic.
+ * Matches the dark, warm, amber/orange-accented design of the home screen.
  */
 
-/* Aside cat: screen blend so black video background disappears */
+/* ─── Report page shell override ─────────────────────────────────────────────
+ * The shared .app-shell locks height/overflow for the homepage scene.
+ * On the report page we need natural document scroll. */
+.report-page .app-shell {
+  height: auto;
+  overflow: visible;
+}
+
+/* ─── Aside cat: mix-blend-mode so black video background disappears ──────── */
 .aside-cat .cat-stage {
   mix-blend-mode: screen;
   background: transparent;
@@ -12,34 +21,52 @@
   clip-path: inset(0 0 14% 0);
 }
 
+/* ─── Page layout ─────────────────────────────────────────────────────────── */
 .report-layout {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--space-6);
   max-width: var(--container-wide);
   margin: 0 auto;
-  padding: var(--space-6) var(--space-5) var(--space-9);
+  padding: var(--space-7) var(--space-5) var(--space-9);
 }
 
 @media (min-width: 960px) {
   .report-layout {
     grid-template-columns: minmax(0, 1fr) 260px;
     gap: var(--space-7);
+    align-items: start;
   }
 }
 
+/* ─── Report header ───────────────────────────────────────────────────────── */
 .report-header {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-  padding-bottom: var(--space-5);
+  gap: var(--space-4);
+  padding-bottom: var(--space-6);
+  margin-bottom: var(--space-2);
   border-bottom: 1px solid var(--border-subtle);
+  /* Subtle orange top-bar — premium document feel */
+  position: relative;
+}
+
+.report-header::before {
+  content: "";
+  position: absolute;
+  top: calc(-1 * var(--space-7));
+  left: 0;
+  width: 48px;
+  height: 2px;
+  background: var(--accent-orange);
+  border-radius: var(--radius-pill);
+  opacity: 0.7;
 }
 
 .report-header__meta {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-4);
+  gap: var(--space-2) var(--space-5);
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
   color: var(--text-muted);
@@ -47,56 +74,88 @@
   text-transform: uppercase;
 }
 
+/* Separate each meta item with a subtle divider */
+.report-header__meta span + span {
+  padding-left: var(--space-5);
+  border-left: 1px solid var(--border-subtle);
+}
+
 .report-header__title {
   font-size: var(--fs-2xl);
   font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--lh-tight);
+  color: var(--text-primary);
 }
 
 .report-header__summary {
   color: var(--text-secondary);
-  max-width: 70ch;
+  font-size: var(--fs-md);
+  line-height: var(--lh-loose);
+  max-width: 68ch;
 }
 
+/* ─── Sections stack ──────────────────────────────────────────────────────── */
 .report-sections {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
-  margin-top: var(--space-6);
+  gap: var(--space-5);
+  margin-top: var(--space-5);
 }
 
+/* ─── Individual section card ─────────────────────────────────────────────── */
 .report-section {
   background: var(--surface-2);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
+  transition: border-color var(--dur-base) var(--ease-out);
+}
+
+.report-section:hover {
+  border-color: var(--border-default);
 }
 
 .report-section__head {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-4);
   margin-bottom: var(--space-5);
   padding-bottom: var(--space-4);
   border-bottom: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
 }
 
 .report-section__title-group {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-2);
+}
+
+/* Eyebrow gets a matching accent color nudge */
+.report-section__title-group .eyebrow {
+  color: var(--accent-orange);
+  opacity: 0.75;
 }
 
 .report-section__title {
   font-size: var(--fs-xl);
   font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
+  line-height: var(--lh-tight);
 }
 
 .report-section__actions {
   display: flex;
   gap: var(--space-2);
+  flex-shrink: 0;
+  align-items: center;
 }
 
+/* ─── Icon buttons (Copy / Export) ────────────────────────────────────────── */
+/* Defined here to complement the shared component; kept scoped to report context */
 .icon-button {
   background: transparent;
   border: 1px solid var(--border-default);
@@ -110,78 +169,101 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  transition: color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out);
+  cursor: pointer;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
 }
 
 .icon-button:hover {
   color: var(--text-primary);
   border-color: var(--accent-blue);
+  background: var(--accent-blue-soft);
 }
 
 .icon-button svg {
   width: 14px;
   height: 14px;
+  flex-shrink: 0;
 }
 
-/* Findings */
+/* ─── Findings list ───────────────────────────────────────────────────────── */
 .findings {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
 }
 
+/* Finding card — polished data card with colored left accent border */
 .finding {
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: var(--space-4);
+  grid-template-columns: 1fr auto;
+  gap: var(--space-3) var(--space-4);
   align-items: start;
-  padding: var(--space-4);
+  padding: var(--space-4) var(--space-5);
   background: var(--surface-1);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  transition: border-color var(--dur-fast) var(--ease-out);
+  border-left: 3px solid transparent;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
 }
 
 .finding:hover {
-  border-color: var(--border-strong);
+  background: var(--surface-2);
+  border-color: var(--border-default);
+  border-left-color: inherit; /* keep severity color on hover */
 }
 
+/* Colored left border by severity */
+.finding[data-severity="high"] {
+  border-left-color: var(--status-bad);
+}
+.finding[data-severity="medium"] {
+  border-left-color: var(--status-warn);
+}
+.finding[data-severity="low"] {
+  border-left-color: var(--accent-blue);
+}
+.finding[data-severity="ok"] {
+  border-left-color: var(--status-good);
+}
+
+/* Severity dot — still present for aria-hidden decorative use, now hidden */
 .finding__severity {
-  width: 8px;
-  align-self: stretch;
-  border-radius: var(--radius-pill);
-}
-
-.finding[data-severity="high"] .finding__severity {
-  background: var(--status-bad);
-  box-shadow: 0 0 12px var(--status-bad);
-}
-.finding[data-severity="medium"] .finding__severity {
-  background: var(--status-warn);
-}
-.finding[data-severity="low"] .finding__severity {
-  background: var(--status-info);
-}
-.finding[data-severity="ok"] .finding__severity {
-  background: var(--status-good);
+  display: none;
 }
 
 .finding__body {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  min-width: 0;
 }
 
 .finding__title {
   color: var(--text-primary);
   font-weight: var(--fw-medium);
   font-size: var(--fs-md);
+  line-height: var(--lh-tight);
 }
 
 .finding__detail {
   color: var(--text-secondary);
   font-size: var(--fs-sm);
+  line-height: var(--lh-normal);
+}
+
+/* Inline code within findings */
+.finding__detail code {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 1px 6px;
+  font-size: 0.875em;
+  color: var(--accent-blue);
 }
 
 .finding__meta {
@@ -189,24 +271,53 @@
   font-size: var(--fs-xs);
   color: var(--text-muted);
   letter-spacing: var(--tracking-wide);
+  margin-top: var(--space-1);
 }
 
+/* Severity badge — top-right of each card, colored per severity */
 .finding__tag {
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
-  color: var(--text-muted);
   letter-spacing: var(--tracking-caps);
   text-transform: uppercase;
   white-space: nowrap;
-  padding-top: 2px;
+  padding: 3px var(--space-3);
+  border-radius: var(--radius-pill);
+  border: 1px solid;
+  align-self: start;
+  font-weight: var(--fw-medium);
 }
 
-/* Recommendations (numbered) */
+.finding[data-severity="high"] .finding__tag {
+  color: var(--status-bad);
+  border-color: rgba(255, 107, 107, 0.25);
+  background: rgba(255, 107, 107, 0.08);
+}
+.finding[data-severity="medium"] .finding__tag {
+  color: var(--status-warn);
+  border-color: rgba(255, 182, 92, 0.25);
+  background: rgba(255, 182, 92, 0.08);
+}
+.finding[data-severity="low"] .finding__tag {
+  color: var(--accent-blue);
+  border-color: rgba(0, 217, 255, 0.2);
+  background: rgba(0, 217, 255, 0.06);
+}
+.finding[data-severity="ok"] .finding__tag {
+  color: var(--status-good);
+  border-color: rgba(110, 231, 168, 0.22);
+  background: rgba(110, 231, 168, 0.07);
+}
+
+/* ─── Recommendations (numbered list) ────────────────────────────────────── */
 .recommendations {
   counter-reset: rec;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .recommendation {
@@ -215,95 +326,180 @@
   grid-template-columns: auto 1fr;
   gap: var(--space-4);
   align-items: start;
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  transition: border-color var(--dur-fast) var(--ease-out);
 }
 
+.recommendation:hover {
+  border-color: var(--border-default);
+}
+
+/* Numbered counter badge */
 .recommendation::before {
   content: counter(rec, decimal-leading-zero);
   font-family: var(--font-mono);
   font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
   color: var(--accent-orange);
   letter-spacing: var(--tracking-wide);
-  padding-top: 2px;
+  padding-top: 3px;
+  line-height: 1;
+  min-width: 2ch;
+}
+
+.recommendation__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .recommendation__body h4 {
-  margin-bottom: var(--space-2);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-medium);
+  color: var(--text-primary);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--lh-tight);
 }
 
 .recommendation__body p {
   color: var(--text-secondary);
   font-size: var(--fs-sm);
+  line-height: var(--lh-loose);
 }
 
-/* Next steps checklist */
+/* Inline code in recommendations */
+.recommendation__body code {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 1px 6px;
+  font-size: 0.875em;
+  color: var(--accent-blue);
+}
+
+/* ─── Next steps checklist ────────────────────────────────────────────────── */
 .next-steps {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-2);
 }
 
 .next-step {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-5);
   background: var(--surface-1);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   color: var(--text-secondary);
   font-size: var(--fs-sm);
+  line-height: var(--lh-normal);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
 }
 
+.next-step:hover {
+  border-color: var(--border-default);
+  background: var(--surface-2);
+}
+
+/* Checkbox square — styled like an empty checkbox with orange accent on hover */
 .next-step__check {
   width: 18px;
   height: 18px;
-  border-radius: var(--radius-sm);
+  border-radius: 4px;
   border: 1.5px solid var(--border-strong);
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color var(--dur-fast) var(--ease-out);
+  position: relative;
 }
 
-/* Sidebar (sticky cat + TOC) */
+.next-step:hover .next-step__check {
+  border-color: var(--accent-orange);
+}
+
+/* Subtle inner dot to suggest "checkable" state */
+.next-step__check::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: var(--accent-orange);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.next-step:hover .next-step__check::after {
+  opacity: 0.4;
+}
+
+/* ─── Sidebar: sticky cat + TOC ───────────────────────────────────────────── */
 .report-aside {
   position: sticky;
-  top: var(--space-5);
+  top: var(--space-6);
   align-self: start;
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-4);
   z-index: var(--z-sticky);
 }
 
+/* Cat widget */
 .aside-cat {
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-4) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: center;
+  text-align: center;
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+
+.aside-cat:hover {
+  border-color: var(--border-default);
+}
+
+.aside-cat .cat-stage {
+  width: 120px;
+  height: 120px;
+  transition: transform var(--dur-base) var(--ease-spring);
+  cursor: pointer;
+}
+
+.aside-cat .cat-stage:hover {
+  transform: scale(1.05);
+}
+
+.aside-cat__label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+  line-height: var(--lh-normal);
+  max-width: 18ch;
+}
+
+/* TOC nav card */
+.aside-toc {
   background: var(--surface-2);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   padding: var(--space-4);
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-  align-items: center;
-  text-align: center;
-}
-
-.aside-cat .cat-stage {
-  width: 120px;
-  height: 120px;
-  transition: transform var(--dur-fast) var(--ease-spring);
-}
-
-.aside-cat .cat-stage:hover {
-  transform: scale(1.04);
-}
-
-.aside-cat__label {
-  font-size: var(--fs-xs);
-  color: var(--text-muted);
-}
-
-.aside-toc {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+  gap: 0;
+  overflow: hidden;
 }
 
 .aside-toc a {
@@ -312,20 +508,34 @@
   font-size: var(--fs-xs);
   letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
-  padding: var(--space-2) 0;
+  padding: var(--space-3) var(--space-3);
   border-left: 2px solid transparent;
-  padding-left: var(--space-3);
-  transition: color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out);
+  margin-left: calc(-1 * var(--space-4));
+  padding-left: calc(var(--space-4) + var(--space-3));
+  display: block;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
 }
 
-.aside-toc a:hover,
+.aside-toc a + a {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.aside-toc a:hover {
+  color: var(--text-primary);
+  border-left-color: var(--border-strong);
+  background: rgba(255, 255, 255, 0.03);
+}
+
 .aside-toc a[aria-current="true"] {
   color: var(--text-primary);
   border-left-color: var(--accent-orange);
+  background: var(--accent-orange-soft);
 }
 
-/* Small mobile cat — fixed corner */
+/* ─── Mobile: fixed corner cat ────────────────────────────────────────────── */
 @media (max-width: 959px) {
   .report-layout {
     padding-bottom: calc(var(--space-9) + 110px);
@@ -337,15 +547,19 @@
     right: var(--space-4);
     top: auto;
     align-self: auto;
+    gap: 0;
   }
+
   .aside-cat {
     padding: var(--space-2);
     border-radius: var(--radius-pill);
   }
+
   .aside-cat .cat-stage {
     width: 72px;
     height: 72px;
   }
+
   .aside-cat__label,
   .aside-toc {
     display: none;

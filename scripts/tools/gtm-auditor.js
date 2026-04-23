@@ -20,7 +20,6 @@ export function auditGtm(json) {
     tagCount: tags.length,
     triggerCount: triggers.length,
     variableCount: variables.length,
-    firingTriggerMap: {},
     orphanedTags: [],
     orphanedTriggers: [],
     duplicateTags: [],
@@ -60,11 +59,6 @@ export function auditGtm(json) {
     }
 
     firingTriggers.forEach(id => referencedTriggerIds.add(id));
-
-    summary.firingTriggerMap[name] = firingTriggers.map(id => {
-      const t = triggers.find(tr => tr.triggerId === id);
-      return t ? t.name : `Unknown trigger (${id})`;
-    });
 
     if (tagNameCounts[name] > 1) {
       issues.push({
@@ -117,7 +111,9 @@ export function auditGtm(json) {
 
   return {
     tool: 'gtm-auditor',
-    status: issues.filter(i => i.severity === 'error' || i.severity === 'critical').length > 0 ? 'error' : 'warning',
+    status: issues.filter(i => ['error','critical'].includes(i.severity)).length > 0 ? 'error'
+           : issues.length > 0 ? 'warning'
+           : 'pass',
     summary,
     issues: issues.sort(bySeverity),
     architecture: buildArchitectureMap(tags, triggers, variables),
@@ -133,6 +129,8 @@ function buildArchitectureMap(tags, triggers, variables) {
       paused: t.paused ?? false,
       firingTriggers: t.firingTriggerId ?? [],
       blockingTriggers: t.blockingTriggerId ?? [],
+      setupTag: t.setupTag ?? null,
+      teardownTag: t.teardownTag ?? null,
     })),
     triggers: triggers.map(t => ({
       name: t.name,
