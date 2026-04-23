@@ -7,9 +7,12 @@ import { resolveCatAssetOptions } from "./cat-assets.js";
 import { maybeMountCatDebugPanel } from "./cat-debug-panel.js";
 import { DEFAULT_CAT_ASSET_CONFIG } from "./cat-default-asset.js";
 import { mountScene } from "./scene.js";
+import { mountMusicPlayer } from "./music-player.js";
+import { mountInteractions } from "./interactions.js";
 import { TOOLS } from "./tools-registry.js";
 import { route } from "./router.js";
 import { renderReport } from "./report-renderer.js";
+import { transitionToReport } from "./cat-transition.js";
 
 const EXAMPLES = [
   "Audit my GTM container",
@@ -28,10 +31,12 @@ function init() {
   const sceneWrapper = document.querySelector("[data-scene]");
   const catStage     = document.querySelector("[data-cat]");
   const monitorUI    = document.querySelector("[data-monitor-ui]");
+  const monitorFace  = document.querySelector("[data-monitor-face]");
 
   const scene = mountScene(sceneWrapper, hero);
   scene.positionCat(catStage);
   scene.positionUI(monitorUI);
+  if (monitorFace) scene.positionMonitorFace(monitorFace);
 
   const assetOptions = resolveCatAssetOptions(catStage, DEFAULT_CAT_ASSET_CONFIG);
   const cat = mountCat(catStage, {
@@ -43,10 +48,12 @@ function init() {
     catStage,
     initialAsset: assetOptions.asset,
   });
+  mountMusicPlayer(scene);
+  mountInteractions(scene);
 
   _toolResultEl = getOrCreateToolResult();
 
-  bindComposer(cat, hero);
+  bindComposer(cat, hero, scene, catStage);
   bindToolSelect();
   bindExamples();
 }
@@ -62,18 +69,30 @@ function getOrCreateToolResult() {
   return el;
 }
 
-function bindComposer(cat, hero) {
+function bindComposer(cat, hero, scene, catStage) {
   const form = document.querySelector("[data-composer]");
   const input = document.querySelector("[data-composer-input]");
   const submit = document.querySelector("[data-composer-submit]");
 
   if (!form || !input) return;
 
-  const engage  = () => hero?.classList.add("hero--engaged");
-  const disengage = () => { if (!input.value.trim()) hero?.classList.remove("hero--engaged"); };
+  const engage = () => {
+    hero?.classList.add("hero--engaged");
+    scene?.moveCatToMonitor(catStage);
+  };
+  const disengage = () => {
+    if (!input.value.trim()) {
+      hero?.classList.remove("hero--engaged");
+      scene?.moveCatToDesk(catStage);
+    }
+  };
 
   input.addEventListener("focus", engage);
-  input.addEventListener("blur",  disengage);
+  input.addEventListener("blur", (e) => {
+    const monitorUI = document.querySelector("[data-monitor-ui]");
+    if (monitorUI?.contains(e.relatedTarget)) return;
+    disengage();
+  });
 
   const updateSubmitState = () => {
     submit.disabled = input.value.trim().length === 0;
@@ -121,10 +140,10 @@ async function runTool(text, cat) {
       return;
     }
     const result = run(inputData);
-    renderReport(result, _toolResultEl);
-    _toolResultEl.scrollIntoView({ behavior: "smooth" });
     cat?.setState("celebratory");
-    setTimeout(() => cat?.setState("idle"), 2000);
+    // Fade to report page with cat transition, passing result via sessionStorage
+    sessionStorage.setItem("cat-report-data", JSON.stringify(result));
+    setTimeout(() => transitionToReport(), 600);
   } catch (err) {
     console.error(err);
     cat?.setState("idle");

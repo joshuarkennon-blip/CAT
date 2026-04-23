@@ -20,15 +20,22 @@
     <link rel="stylesheet" href="./styles/tokens.css" />
     <link rel="stylesheet" href="./styles/base.css" />
     <link rel="stylesheet" href="./styles/components.css" />
+    <link rel="stylesheet" href="./styles/scene.css" />
     <link rel="stylesheet" href="./styles/report.css" />
   </head>
   <body>
     <div class="app-shell">
       <header class="app-header">
-        <a href="./index.html" class="wordmark">CAT<span>.</span></a>
+        <a href="./index.html" class="wordmark">
+          <div class="wordmark__logo">
+            <span class="wm-c">C</span><span class="wm-a">A</span><span class="wm-t">T</span><span class="wm-dot">.</span>
+          </div>
+          <div class="wordmark__tagline">Companion Analytics Toolkit</div>
+        </a>
         <div class="header-meta">
           <span><span class="status-dot"></span>Complete</span>
           <span>GTM-AUDIT · 02:14</span>
+          <span class="header-credit">made with ♥ by Josh</span>
         </div>
       </header>
 
@@ -47,6 +54,9 @@
               firing twice on checkout — fix that first.
             </p>
           </header>
+
+          <!-- Dynamic result from tool run — populated by cat-transition.js if navigated from homepage -->
+          <div id="tool-result" class="tool-result"></div>
 
           <div class="report-sections">
             <!-- Findings -->
@@ -238,6 +248,10 @@
         </aside>
       </div>
     </div>
+
+    <footer class="legal-footer">
+      <p>&copy; 2026 Joshua Kennon. All rights reserved. CAT — Companion Analytics Toolkit, including all tools, source code, assets, videos, audio, and visual design, is the exclusive intellectual property of Joshua Kennon. Unauthorized reproduction, distribution, or use is strictly prohibited.</p>
+    </footer>
 
     <script>
       window.CAT_ASSET_CONFIG = {

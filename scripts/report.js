@@ -6,6 +6,7 @@ import { mountCat } from "./cat.js";
 import { resolveCatAssetOptions } from "./cat-assets.js";
 import { maybeMountCatDebugPanel } from "./cat-debug-panel.js";
 import { DEFAULT_CAT_ASSET_CONFIG } from "./cat-default-asset.js";
+import { initReportEntrance } from "./cat-transition.js";
 
 function init() {
   const catStage = document.querySelector("[data-cat]");
@@ -23,6 +24,8 @@ function init() {
     catStage,
     initialAsset: assetOptions.asset,
   });
+
+  initReportEntrance(catStage);
 
   document.querySelectorAll("[data-copy]").forEach((btn) => {
     btn.addEventListener("click", () => handleCopy(btn));

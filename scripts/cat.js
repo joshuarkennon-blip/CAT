@@ -394,13 +394,16 @@ function createVideoProvider(asset) {
     video.poster = asset.poster;
   }
 
-  const syncPlayback = () => {
+  const tryPlay = () => {
     if (!video.autoplay) return;
     const playback = video.play();
     if (playback && typeof playback.catch === "function") {
       playback.catch(() => {});
     }
   };
+
+  // Clear poster after first successful play so state transitions don't flash the static image
+  video.addEventListener("playing", () => { video.removeAttribute("poster"); }, { once: true });
 
   const setSource = (state) => {
     const nextSource = resolveSourceForState(asset, state);
@@ -409,14 +412,14 @@ function createVideoProvider(asset) {
     video.src = nextSource;
     video.dataset.activeSource = nextSource;
     video.load();
-    syncPlayback();
+    video.addEventListener("canplay", tryPlay, { once: true });
   };
   setSource("idle");
 
   return {
     type: "video",
     element: video,
-    onMount: syncPlayback,
+    onMount: tryPlay,
     setState: setSource,
     bindError(onError) {
       video.addEventListener("error", onError, { once: true });
