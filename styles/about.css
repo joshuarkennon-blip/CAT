@@ -1,0 +1,294 @@
+/* CAT — About page
+ * Article layout. No scene, no aside. Clean, warm, readable.
+ * Reuses report-page shell override so the document scrolls naturally.
+ */
+
+/* ─── Shell override (mirrors report-page pattern) ──────────────────────── */
+.about-page .app-shell {
+  height: auto;
+  overflow: visible;
+}
+
+/* ─── Page layout ────────────────────────────────────────────────────────── */
+.about-layout {
+  max-width: var(--container-default);
+  margin: 0 auto;
+  padding: var(--space-9) var(--space-5) var(--space-9);
+}
+
+.about-article {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* ─── Hero section ───────────────────────────────────────────────────────── */
+.about-hero {
+  padding-bottom: var(--space-8);
+  border-bottom: 1px solid var(--border-subtle);
+  position: relative;
+}
+
+/* Orange accent bar — matches report-header::before */
+.about-hero::before {
+  content: "";
+  position: absolute;
+  top: calc(-1 * var(--space-7));
+  left: 0;
+  width: 48px;
+  height: 2px;
+  background: var(--accent-orange);
+  border-radius: var(--radius-pill);
+  opacity: 0.7;
+}
+
+.about-hero__eyebrow {
+  margin-bottom: var(--space-4);
+}
+
+.about-hero__title {
+  font-size: clamp(var(--fs-2xl), 5vw, var(--fs-3xl));
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--lh-tight);
+  color: var(--text-primary);
+  margin-bottom: var(--space-6);
+  max-width: 24ch;
+}
+
+.about-hero__break {
+  display: none;
+}
+
+@media (min-width: 560px) {
+  .about-hero__break {
+    display: inline;
+  }
+}
+
+.about-hero__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 64ch;
+}
+
+.about-hero__body p {
+  color: var(--text-secondary);
+  font-size: var(--fs-md);
+  line-height: var(--lh-loose);
+}
+
+/* ─── Generic about section ──────────────────────────────────────────────── */
+.about-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.about-section__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.about-section__head .eyebrow {
+  color: var(--accent-orange);
+  opacity: 0.75;
+}
+
+.about-section__title {
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
+  line-height: var(--lh-tight);
+}
+
+/* ─── Tool menu ──────────────────────────────────────────────────────────── */
+.tool-menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.tool-menu__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-6);
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  border-left: 3px solid var(--accent-orange);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
+}
+
+.tool-menu__item:hover {
+  background: var(--surface-3);
+  border-color: var(--border-default);
+  border-left-color: var(--accent-orange-bright);
+}
+
+.tool-menu__item-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.tool-menu__item-id {
+  color: var(--accent-orange);
+  opacity: 0.9;
+  font-size: var(--fs-xs);
+}
+
+.tool-menu__item-desc {
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-loose);
+  max-width: 62ch;
+}
+
+.tool-menu__cta {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-muted);
+  text-decoration: none;
+  margin-top: var(--space-1);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.tool-menu__cta:hover {
+  color: var(--accent-orange);
+}
+
+/* ─── How-it-works steps ─────────────────────────────────────────────────── */
+.how-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  /* Left guide rail */
+  border-left: 1px solid var(--border-subtle);
+  margin-left: var(--space-5);
+}
+
+.how-step {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-4) var(--space-5);
+  padding: var(--space-5) var(--space-5) var(--space-5) var(--space-6);
+  position: relative;
+}
+
+/* Rail dot */
+.how-step::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: calc(var(--space-5) + 6px);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--surface-4);
+  border: 1.5px solid var(--border-strong);
+  transition: border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
+}
+
+.how-step:hover::before {
+  background: var(--accent-orange-soft);
+  border-color: var(--accent-orange);
+}
+
+.how-step + .how-step {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.how-step__num {
+  color: var(--accent-orange);
+  opacity: 0.6;
+  padding-top: 4px;
+  font-size: var(--fs-xs);
+}
+
+.how-step__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.how-step__title {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-medium);
+  color: var(--text-primary);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--lh-tight);
+}
+
+.how-step__content p {
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-loose);
+  max-width: 58ch;
+}
+
+/* ─── Special Thanks section ─────────────────────────────────────────────── */
+.about-section--thanks {
+  padding: var(--space-7) var(--space-6);
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  /* Soft warm glow — a little affectionate */
+  box-shadow: 0 0 48px rgba(255, 140, 66, 0.05) inset;
+  border-top: 2px solid rgba(255, 140, 66, 0.18);
+}
+
+.about-section--thanks .about-section__head .eyebrow {
+  opacity: 0.8;
+}
+
+.thanks-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 62ch;
+}
+
+.thanks-body p {
+  color: var(--text-secondary);
+  font-size: var(--fs-md);
+  line-height: var(--lh-loose);
+}
+
+.thanks-body strong {
+  color: var(--text-primary);
+  font-weight: var(--fw-semibold);
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .about-layout {
+    padding: var(--space-7) var(--space-4) var(--space-8);
+  }
+
+  .about-section--thanks {
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .tool-menu__item {
+    padding: var(--space-4) var(--space-4);
+  }
+
+  .how-steps {
+    margin-left: var(--space-3);
+  }
+
+  .how-step {
+    padding-left: var(--space-4);
+  }
+}

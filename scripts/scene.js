@@ -981,68 +981,38 @@ const SCENE_SVG = /* html */`
     <rect x="2" y="2" width="52" height="1.5" fill="#5a3018" opacity="0.5"/>
     <rect x="2" y="2" width="1.5" height="40" fill="#5a3018" opacity="0.4"/>
     <!-- Bottom-right shadow edge -->
-    <rect x="52.5" y="2" width="1.5" height="40" fill="#06030100" opacity="0.7"/>
+    <rect x="52.5" y="2" width="1.5" height="40" fill="#060302" opacity="0.7"/>
     <rect x="2" y="40.5" width="52" height="1.5" fill="#060302" opacity="0.6"/>
     <!-- Canvas — white -->
     <rect x="4" y="4" width="48" height="36" fill="#f7f5f0"/>
 
-    <!-- ── Pixel-art cat face ──────────────────────────────────────────────
-         10 × 8 grid · each pixel 4 × 4 SVG units
-         art origin (10, 8) · art size 40 × 32 · centered in 48 × 36 canvas
-         B = #1a1a1a  O = #d9702a  P = #f5b0a0
+    <!-- ── Pixel heart ─────────────────────────────────────────────────────
+         8 × 6 grid · each pixel 3 × 3 SVG units · heart 24 × 18
+         centered horizontally in 48-wide canvas → start x = 4 + 12 = 16
+         start y = 7 (a touch below inner top)
+         Heart color: #e03060
     ─────────────────────────────────────────────────────────────────────── -->
+    <!-- row 0 · y=7 -->
+    <rect x="19" y="7"  width="3" height="3" fill="#e03060"/><!-- col 1 -->
+    <rect x="22" y="7"  width="3" height="3" fill="#e03060"/><!-- col 2 -->
+    <rect x="31" y="7"  width="3" height="3" fill="#e03060"/><!-- col 5 -->
+    <rect x="34" y="7"  width="3" height="3" fill="#e03060"/><!-- col 6 -->
+    <!-- row 1 · y=10 · full width -->
+    <rect x="16" y="10" width="24" height="3" fill="#e03060"/>
+    <!-- row 2 · y=13 · full width -->
+    <rect x="16" y="13" width="24" height="3" fill="#e03060"/>
+    <!-- row 3 · y=16 · cols 1-6 -->
+    <rect x="19" y="16" width="18" height="3" fill="#e03060"/>
+    <!-- row 4 · y=19 · cols 2-5 -->
+    <rect x="22" y="19" width="12" height="3" fill="#e03060"/>
+    <!-- row 5 · y=22 · cols 3-4 -->
+    <rect x="25" y="22" width="6"  height="3" fill="#e03060"/>
 
-    <!-- row 0 · y=8 · ear tips -->
-    <rect x="18" y="8"  width="4" height="4" fill="#1a1a1a"/><!-- col 2 -->
-    <rect x="38" y="8"  width="4" height="4" fill="#1a1a1a"/><!-- col 7 -->
-
-    <!-- row 1 · y=12 · ears -->
-    <rect x="14" y="12" width="4" height="4" fill="#1a1a1a"/><!-- col 1 -->
-    <rect x="18" y="12" width="4" height="4" fill="#d9702a"/><!-- col 2 -->
-    <rect x="22" y="12" width="4" height="4" fill="#f5b0a0"/><!-- col 3 inner ear -->
-    <rect x="34" y="12" width="4" height="4" fill="#f5b0a0"/><!-- col 6 inner ear -->
-    <rect x="38" y="12" width="4" height="4" fill="#d9702a"/><!-- col 7 -->
-    <rect x="42" y="12" width="4" height="4" fill="#1a1a1a"/><!-- col 8 -->
-
-    <!-- row 2 · y=16 · head top + inner ears -->
-    <rect x="10" y="16" width="4" height="4" fill="#1a1a1a"/><!-- col 0 -->
-    <rect x="14" y="16" width="4" height="4" fill="#d9702a"/><!-- col 1 -->
-    <rect x="18" y="16" width="4" height="4" fill="#d9702a"/><!-- col 2 -->
-    <rect x="22" y="16" width="4" height="4" fill="#f5b0a0"/><!-- col 3 -->
-    <rect x="26" y="16" width="4" height="4" fill="#1a1a1a"/><!-- col 4 -->
-    <rect x="30" y="16" width="4" height="4" fill="#1a1a1a"/><!-- col 5 -->
-    <rect x="34" y="16" width="4" height="4" fill="#f5b0a0"/><!-- col 6 -->
-    <rect x="38" y="16" width="4" height="4" fill="#d9702a"/><!-- col 7 -->
-    <rect x="42" y="16" width="4" height="4" fill="#d9702a"/><!-- col 8 -->
-    <rect x="46" y="16" width="4" height="4" fill="#1a1a1a"/><!-- col 9 -->
-
-    <!-- row 3 · y=20 · forehead (solid orange) -->
-    <rect x="10" y="20" width="40" height="4" fill="#d9702a"/>
-
-    <!-- row 4 · y=24 · eyes -->
-    <rect x="10" y="24" width="4" height="4" fill="#d9702a"/><!-- col 0 -->
-    <rect x="14" y="24" width="4" height="4" fill="#1a1a1a"/><!-- col 1 eye-l -->
-    <rect x="18" y="24" width="4" height="4" fill="#1a1a1a"/><!-- col 2 eye-l -->
-    <rect x="22" y="24" width="8" height="4" fill="#d9702a"/><!-- cols 3-4 bridge -->
-    <rect x="30" y="24" width="8" height="4" fill="#d9702a"/><!-- cols 5-6 bridge -->
-    <rect x="38" y="24" width="4" height="4" fill="#1a1a1a"/><!-- col 7 eye-r -->
-    <rect x="42" y="24" width="4" height="4" fill="#1a1a1a"/><!-- col 8 eye-r -->
-    <rect x="46" y="24" width="4" height="4" fill="#d9702a"/><!-- col 9 -->
-
-    <!-- row 5 · y=28 · nose -->
-    <rect x="10" y="28" width="16" height="4" fill="#d9702a"/><!-- cols 0-3 -->
-    <rect x="26" y="28" width="4"  height="4" fill="#1a1a1a"/><!-- col 4  nose dot -->
-    <rect x="30" y="28" width="20" height="4" fill="#d9702a"/><!-- cols 5-9 -->
-
-    <!-- row 6 · y=32 · mouth + whisker marks -->
-    <rect x="10" y="32" width="8"  height="4" fill="#d9702a"/><!-- cols 0-1 -->
-    <rect x="18" y="32" width="4"  height="4" fill="#1a1a1a"/><!-- col 2  whisker tick -->
-    <rect x="22" y="32" width="12" height="4" fill="#d9702a"/><!-- cols 3-5 -->
-    <rect x="34" y="32" width="4"  height="4" fill="#1a1a1a"/><!-- col 6  whisker tick -->
-    <rect x="38" y="32" width="12" height="4" fill="#d9702a"/><!-- cols 7-9 -->
-
-    <!-- row 7 · y=36 · chin (no corners) -->
-    <rect x="14" y="36" width="32" height="4" fill="#d9702a"/><!-- cols 1-8 -->
+    <!-- "For RK" label -->
+    <text x="28" y="35"
+          font-family="'Inter', 'Helvetica Neue', Arial, sans-serif"
+          font-size="7" font-weight="700" text-anchor="middle" letter-spacing="0.8"
+          fill="#2a1a0e">For RK</text>
   </g>
 
   <!-- Elegant side table -->
