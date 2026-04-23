@@ -274,6 +274,74 @@ function makeInteractive(el, handler) {
   el.addEventListener('click', (e) => { e.stopPropagation(); handler(el, e); });
 }
 
+// ─── Generic Draggable SVG Element (no snap-back) ─────────────────────────
+
+function mountSVGDrag(svg, elementId) {
+  const el = svg.getElementById(elementId);
+  if (!el) return;
+
+  const baseTransform = el.getAttribute('transform') || '';
+  let currentDx = 0, currentDy = 0;
+  let dragging = false;
+  let startSVGX = 0, startSVGY = 0;
+
+  function getSVGPoint(clientX, clientY) {
+    const pt = svg.createSVGPoint();
+    pt.x = clientX; pt.y = clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+
+  el.style.cursor = 'grab';
+  el.style.setProperty('pointer-events', 'all');
+
+  el.addEventListener('mousedown', (e) => {
+    e.stopPropagation();
+    dragging = true;
+    const p = getSVGPoint(e.clientX, e.clientY);
+    startSVGX = p.x - currentDx;
+    startSVGY = p.y - currentDy;
+    el.style.cursor = 'grabbing';
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  el.addEventListener('touchstart', (e) => {
+    e.stopPropagation();
+    dragging = true;
+    const t = e.touches[0];
+    const p = getSVGPoint(t.clientX, t.clientY);
+    startSVGX = p.x - currentDx;
+    startSVGY = p.y - currentDy;
+    document.addEventListener('touchmove', onTouchMove, { passive: true });
+    document.addEventListener('touchend', onUp);
+  }, { passive: true });
+
+  function onMove(e) {
+    if (!dragging) return;
+    const p = getSVGPoint(e.clientX, e.clientY);
+    currentDx = p.x - startSVGX;
+    currentDy = p.y - startSVGY;
+    el.setAttribute('transform', `translate(${currentDx},${currentDy}) ${baseTransform}`);
+  }
+
+  function onTouchMove(e) {
+    if (!dragging) return;
+    const p = getSVGPoint(e.touches[0].clientX, e.touches[0].clientY);
+    currentDx = p.x - startSVGX;
+    currentDy = p.y - startSVGY;
+    el.setAttribute('transform', `translate(${currentDx},${currentDy}) ${baseTransform}`);
+  }
+
+  function onUp() {
+    dragging = false;
+    el.style.cursor = 'grab';
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    document.removeEventListener('touchmove', onTouchMove);
+    document.removeEventListener('touchend', onUp);
+  }
+}
+
 // ─── Mouse Drag with Snap-back ─────────────────────────────────────────────
 
 function mountMouseDrag(svg) {
@@ -430,11 +498,20 @@ export function mountInteractions(scene) {
     const svg = document.querySelector('.scene-wrapper svg');
     if (!svg) { setTimeout(tryMount, 200); return; }
 
-    // Mug — steam pours out
-    makeInteractive(svg.getElementById('s-mug'), (el) => {
-      spawnSteam(el);
-      showBubble(el, '☕ mmmm cozy...');
-    });
+    // Mug — steam on click (drag handled separately by mountSVGDrag)
+    // We wire this BEFORE mountSVGDrag so drag's stopPropagation wins on drag moves
+    const mugEl = svg.getElementById('s-mug');
+    if (mugEl) {
+      let mugDragMoved = false;
+      mugEl.addEventListener('mousedown', () => { mugDragMoved = false; });
+      mugEl.addEventListener('mousemove', () => { mugDragMoved = true; });
+      mugEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (mugDragMoved) return;
+        spawnSteam(mugEl);
+        showBubble(mugEl, '☕ mmmm cozy...');
+      });
+    }
 
     // Candle — flicker, blow out / relight toggle
     let candleLit = true;
@@ -478,17 +555,27 @@ export function mountInteractions(scene) {
       showBubble(el, '🎧 vibing hard');
     });
 
-    // Lamp — wobble + dim/bright toggle
+    // Lamp — full on/off toggle (tight clickbox: pool has pointer-events:none in SVG)
     let lampBright = true;
-    const lampPool = svg.getElementById('s-lamp-pool');
+    const lampPool      = svg.getElementById('s-lamp-pool');
+    const lampBulb      = svg.getElementById('s-lamp-bulb');
+    const lampHalo      = svg.getElementById('s-lamp-halo');
+    const lampShadeGlow = svg.getElementById('s-lamp-shade-glow');
+    const lampCone      = svg.getElementById('s-lamp-cone');
+    const lampWallLight = svg.getElementById('s-lamp-wall-light');
+
+    const lampEls = [lampPool, lampBulb, lampHalo, lampShadeGlow, lampCone, lampWallLight].filter(Boolean);
+    lampEls.forEach(e => { e.style.transition = 'opacity 0.4s ease'; });
+
     makeInteractive(svg.getElementById('s-lamp'), (el) => {
-      wobbleEl(el, 'center', 'bottom');
       lampBright = !lampBright;
-      if (lampPool) {
-        lampPool.style.transition = 'opacity 0.5s ease';
-        lampPool.style.opacity = lampBright ? '0.80' : '0.12';
-      }
-      showBubble(el, lampBright ? '💡 warm' : '🌙 dim');
+      lampPool?.style      && (lampPool.style.opacity      = lampBright ? '0.80' : '0');
+      lampBulb?.style      && (lampBulb.style.opacity      = lampBright ? '0.92' : '0');
+      lampHalo?.style      && (lampHalo.style.opacity      = lampBright ? '0.30' : '0');
+      lampShadeGlow?.style && (lampShadeGlow.style.opacity = lampBright ? '0.12' : '0');
+      lampCone?.style      && (lampCone.style.opacity      = lampBright ? '0.06' : '0');
+      lampWallLight?.style && (lampWallLight.style.opacity = lampBright ? '1'    : '0');
+      showBubble(el, lampBright ? '💡 lights on' : '🌙 lights out');
     });
 
     // Moon — shooting stars!
@@ -565,6 +652,9 @@ export function mountInteractions(scene) {
 
     // Mouse — drag + snap-back (no wobble)
     mountMouseDrag(svg);
+
+    // Mug — drag around the desk (no snap-back, stays where dropped)
+    mountSVGDrag(svg, 's-mug');
 
     // iPod desk item click already handled by music-player.js
   };

@@ -233,7 +233,7 @@ const SCENE_SVG = /* html */`
   <!-- Cool moonlight wash from window -->
   <rect width="1440" height="590" fill="url(#s-wall-light)"/>
   <!-- Warm lamp glow on right wall / ceiling -->
-  <rect width="1440" height="590" fill="url(#s-lamp-wall)"/>
+  <rect id="s-lamp-wall-light" width="1440" height="590" fill="url(#s-lamp-wall)"/>
 
   <!-- Floor -->
   <rect y="582" width="1440" height="138" fill="url(#s-floor)"/>
@@ -1128,25 +1128,25 @@ const SCENE_SVG = /* html */`
   <polygon points="474,578 696,578 696,582 474,582" fill="#ffa030" opacity="0.04"/>
   </g><!-- end keyboard -->
 
-  <!-- Mouse — top-down view, shifted right -->
+  <!-- Mouse — top-down view, moved down+right on desk -->
   <g id="s-mouse-drag" style="cursor:grab;pointer-events:all">
   <!-- Cast shadow on desk -->
-  <ellipse cx="718" cy="567" rx="22" ry="10" fill="#000" opacity="0.28" filter="url(#s-blur-xs)"/>
+  <ellipse cx="752" cy="583" rx="22" ry="10" fill="#000" opacity="0.28" filter="url(#s-blur-xs)"/>
   <!-- Body shell — matte dark, wider at near end -->
-  <ellipse cx="718" cy="558" rx="18" ry="13" fill="#202020"/>
+  <ellipse cx="752" cy="574" rx="18" ry="13" fill="#202020"/>
   <!-- Top surface — very subtle center lightness -->
-  <ellipse cx="716" cy="554" rx="13" ry="9" fill="#2a2a2a" opacity="0.85"/>
+  <ellipse cx="750" cy="570" rx="13" ry="9" fill="#2a2a2a" opacity="0.85"/>
   <!-- Left/right button seam line -->
-  <line x1="718" y1="546" x2="718" y2="558" stroke="#151515" stroke-width="1.2"/>
+  <line x1="752" y1="562" x2="752" y2="574" stroke="#151515" stroke-width="1.2"/>
   <!-- Scroll wheel -->
-  <rect x="715" y="549" width="5" height="7" fill="#363636" rx="2"/>
-  <rect x="716" y="550" width="3" height="5" fill="#444" rx="1.5"/>
+  <rect x="749" y="565" width="5" height="7" fill="#363636" rx="2"/>
+  <rect x="750" y="566" width="3" height="5" fill="#444" rx="1.5"/>
   <!-- Subtle top-left glint (lamp reflection) -->
-  <ellipse cx="710" cy="550" rx="3.5" ry="2" fill="#fff" opacity="0.05" transform="rotate(-15 710 550)"/>
+  <ellipse cx="744" cy="566" rx="3.5" ry="2" fill="#fff" opacity="0.05" transform="rotate(-15 744 566)"/>
   <!-- Near-edge depth shadow -->
-  <ellipse cx="718" cy="570" rx="17" ry="3.5" fill="#0a0a0a" opacity="0.55"/>
+  <ellipse cx="752" cy="586" rx="17" ry="3.5" fill="#0a0a0a" opacity="0.55"/>
   <!-- Orange brand accent -->
-  <circle cx="718" cy="563" r="1.6" fill="#ff8c42" opacity="0.35"/>
+  <circle cx="752" cy="579" r="1.6" fill="#ff8c42" opacity="0.35"/>
   </g><!-- end mouse -->
 
   <!-- Headphones on stand — right side of desk, past the lamp -->
@@ -1389,21 +1389,22 @@ const SCENE_SVG = /* html */`
     <!-- Shade inner face (lamp-lit interior) -->
     <path d="M 838 409 L 885 398 L 894 430 L 843 444 Z" fill="#383838"/>
     <!-- Shade interior warm glow -->
-    <path d="M 841 411 L 882 401 L 890 428 L 846 441 Z" fill="#ffcc60" opacity="0.12"/>
+    <path id="s-lamp-shade-glow" d="M 841 411 L 882 401 L 890 428 L 846 441 Z" fill="#ffcc60" opacity="0.12"/>
     <!-- Shade highlight along top edge -->
     <line x1="836" y1="408" x2="888" y2="396" stroke="#555555" stroke-width="1.2" opacity="0.7"/>
     <!-- Bulb -->
-    <circle cx="864" cy="422" r="6" fill="#ffe080" opacity="0.92">
+    <circle id="s-lamp-bulb" cx="864" cy="422" r="6" fill="#ffe080" opacity="0.92">
       <animate attributeName="opacity" values="0.8;1;0.8" dur="4.2s" repeatCount="indefinite"/>
     </circle>
     <!-- Bulb halo -->
-    <circle cx="864" cy="422" r="10" fill="#ffcc40" opacity="0.30" filter="url(#s-blur-xs)"/>
+    <circle id="s-lamp-halo" cx="864" cy="422" r="10" fill="#ffcc40" opacity="0.30" filter="url(#s-blur-xs)"/>
     <!-- Lamp pool on desk — warm amber hero light source -->
     <ellipse id="s-lamp-pool" cx="830" cy="544" rx="150" ry="28"
-             fill="url(#s-lamp-glow)" filter="url(#s-blur-md)" opacity="0.80"/>
+             fill="url(#s-lamp-glow)" filter="url(#s-blur-md)" opacity="0.80"
+             pointer-events="none"/>
     <!-- Cone of light — angled down toward scrap paper on desk -->
-    <polygon points="836,408 842,446 876,544 840,548"
-             fill="#ffe080" opacity="0.06" filter="url(#s-blur-xs)">
+    <polygon id="s-lamp-cone" points="836,408 842,446 876,544 840,548"
+             fill="#ffe080" opacity="0.06" filter="url(#s-blur-xs)" pointer-events="none">
       <animate attributeName="opacity" values="0.04;0.08;0.04" dur="4.2s" repeatCount="indefinite"/>
     </polygon>
   </g>
