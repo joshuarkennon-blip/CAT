@@ -28,9 +28,6 @@ let _toolResultEl = null;
 let _attachments = [];
 let _attachmentsEl = null;
 let _fileInputEl = null;
-let _contextPanelEl = null;
-let _contextInputEl = null;
-let _contextToggleEl = null;
 
 const MAX_ATTACHMENT_BYTES = 20 * 1024 * 1024; // 20MB
 
@@ -62,15 +59,11 @@ function init() {
   _toolResultEl = getOrCreateToolResult();
   _attachmentsEl = document.querySelector("[data-attachments]");
   _fileInputEl = document.querySelector("[data-file-input]");
-  _contextPanelEl = document.querySelector("[data-context-panel]");
-  _contextInputEl = document.querySelector("[data-context-input]");
-  _contextToggleEl = document.querySelector("[data-context-toggle]");
 
   bindComposer(cat, hero, scene, catStage);
   bindToolSelect();
   bindExamples(cat);
   bindAttachments(cat);
-  bindContextToggle();
 }
 
 function getOrCreateToolResult() {
@@ -251,7 +244,6 @@ function parseAttachmentBody(att) {
 }
 
 function buildContext(text, tool) {
-  const instructions = _contextInputEl?.value.trim() ?? "";
   const supporting = _attachments
     .filter(a => a.role !== "primary")
     .map(a => ({ name: a.name, size: a.size, text: a.text }));
@@ -260,7 +252,6 @@ function buildContext(text, tool) {
   return {
     toolId: tool.id,
     userPrompt: text,
-    instructions,
     supportingFiles: supporting,
     primaryFile: primary ? { name: primary.name, size: primary.size } : null,
   };
@@ -268,14 +259,12 @@ function buildContext(text, tool) {
 
 function summarizeContext(context) {
   const hasContent =
-    context.instructions ||
     context.userPrompt ||
     context.supportingFiles?.length ||
     context.primaryFile;
   if (!hasContent) return null;
   return {
     userPrompt: context.userPrompt || null,
-    instructions: context.instructions || null,
     primaryFile: context.primaryFile,
     supportingFiles: (context.supportingFiles ?? []).map(f => ({ name: f.name, size: f.size })),
   };
@@ -530,29 +519,6 @@ function bindAttachments(cat) {
     }
 
     renderAttachments();
-  });
-}
-
-function bindContextToggle() {
-  if (!_contextToggleEl || !_contextPanelEl || !_contextInputEl) return;
-
-  const setOpen = (open) => {
-    _contextToggleEl.setAttribute("aria-expanded", String(open));
-    _contextPanelEl.hidden = !open;
-    _contextToggleEl.classList.toggle("is-active", open);
-    if (open) _contextInputEl.focus();
-  };
-
-  _contextToggleEl.addEventListener("click", () => {
-    const isOpen = _contextToggleEl.getAttribute("aria-expanded") === "true";
-    setOpen(!isOpen);
-  });
-
-  _contextInputEl.addEventListener("input", () => {
-    _contextToggleEl.classList.toggle(
-      "has-value",
-      _contextInputEl.value.trim().length > 0
-    );
   });
 }
 

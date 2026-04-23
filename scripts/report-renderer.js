@@ -85,9 +85,6 @@ function contextCard(context) {
   if (context.userPrompt) {
     list.push(`<div class="tool-result__ctx-row"><span class="tool-result__ctx-label">Prompt</span><span class="tool-result__ctx-val">${escape(context.userPrompt)}</span></div>`);
   }
-  if (context.instructions) {
-    list.push(`<div class="tool-result__ctx-row"><span class="tool-result__ctx-label">Instructions</span><span class="tool-result__ctx-val">${escape(context.instructions)}</span></div>`);
-  }
   if (context.primaryFile) {
     list.push(`<div class="tool-result__ctx-row"><span class="tool-result__ctx-label">File</span><span class="tool-result__ctx-val">${escape(context.primaryFile.name)} <em>(${formatBytes(context.primaryFile.size)})</em></span></div>`);
   }
@@ -214,7 +211,6 @@ function resultToMarkdown(result) {
   if (result.context) {
     lines.push('## Context');
     if (result.context.userPrompt)    lines.push(`- **Prompt:** ${result.context.userPrompt}`);
-    if (result.context.instructions)  lines.push(`- **Instructions:** ${result.context.instructions}`);
     if (result.context.primaryFile)   lines.push(`- **File:** ${result.context.primaryFile.name} (${formatBytes(result.context.primaryFile.size)})`);
     if (result.context.supportingFiles?.length) {
       lines.push(`- **Supporting files:** ${result.context.supportingFiles.map(f => `${f.name} (${formatBytes(f.size)})`).join(', ')}`);
