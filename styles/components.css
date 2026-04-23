@@ -542,6 +542,19 @@
   background: var(--accent-orange-soft);
 }
 
+/* Sample-file chip — accented, stands out from regular example chips */
+.chip--sample {
+  border-color: var(--accent-orange);
+  color: var(--accent-orange);
+  background: var(--accent-orange-soft);
+  font-weight: 500;
+}
+
+.chip--sample:hover {
+  background: var(--accent-orange);
+  color: #fff;
+}
+
 /* ---------- Cat container ---------- */
 .cat-stage {
   display: grid;

@@ -55,7 +55,7 @@ function init() {
 
   bindComposer(cat, hero, scene, catStage);
   bindToolSelect();
-  bindExamples();
+  bindExamples(cat);
 }
 
 function getOrCreateToolResult() {
@@ -121,7 +121,7 @@ function bindComposer(cat, hero, scene, catStage) {
   });
 }
 
-async function runTool(text, cat) {
+async function runTool(text, cat, { useSample = false } = {}) {
   const { tool, confidence } = route(text, _selectedToolId);
 
   if (!tool) {
@@ -138,7 +138,7 @@ async function runTool(text, cat) {
 
   try {
     const { run } = await tool.module();
-    const inputData = await collectInput(tool);
+    const inputData = await collectInput(tool, useSample);
     const result = inputData !== null ? await run(inputData) : null;
     if (result === null) {
       cat?.setState("idle");
@@ -153,14 +153,27 @@ async function runTool(text, cat) {
   }
 }
 
-async function collectInput(tool) {
+async function collectInput(tool, useSample = false) {
   if (tool.inputType === "file" || tool.inputType === "file-or-text") {
+    if (useSample && tool.sampleFile) return loadSampleFile(tool.sampleFile);
     return promptFile(tool.fileAccept);
   }
   if (tool.inputType === "form") {
     return promptForm(tool.id);
   }
   return document.querySelector("[data-composer-input]")?.value.trim() ?? "";
+}
+
+async function loadSampleFile(path) {
+  try {
+    const res = await fetch(path);
+    if (!res.ok) throw new Error(`${res.status}`);
+    const text = await res.text();
+    try { return JSON.parse(text); } catch { return text; }
+  } catch (err) {
+    console.error("Failed to load sample file:", err);
+    return null;
+  }
 }
 
 function promptFile(accept) {
@@ -264,6 +277,8 @@ function bindToolSelect() {
         String(option.dataset.toolId === selectedId)
       );
     });
+    // Notify suggestions area so it can show/hide the sample chip
+    document.dispatchEvent(new CustomEvent("cat:toolSelected", { detail: { toolId: tool.id || null } }));
   };
 
   const setOpen = (open, { focusSelected = false, returnFocus = false } = {}) => {
@@ -388,23 +403,54 @@ function bindToolSelect() {
   });
 }
 
-function bindExamples() {
+function bindExamples(cat) {
   const container = document.querySelector("[data-examples]");
   const input = document.querySelector("[data-composer-input]");
   if (!container || !input) return;
 
-  container.innerHTML =
-    `<div class="eyebrow suggestions__label">Try an example</div>` +
-    EXAMPLES.map(
+  const renderSuggestions = (selectedToolId) => {
+    const tool = TOOLS.find(t => t.id === selectedToolId);
+    const hasSample = tool?.sampleFile;
+
+    const sampleChip = hasSample
+      ? `<button type="button" class="chip chip--sample" data-sample-run>
+           Try ${tool.sampleLabel} →
+         </button>`
+      : "";
+
+    const exampleChips = EXAMPLES.map(
       (ex) => `<button type="button" class="chip" data-example>${ex}</button>`
     ).join("");
 
-  container.addEventListener("click", (e) => {
-    const chip = e.target.closest("[data-example]");
-    if (!chip) return;
-    input.value = chip.textContent;
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    input.focus();
+    container.innerHTML =
+      (hasSample
+        ? `<div class="eyebrow suggestions__label">Load a sample or try an example</div>`
+        : `<div class="eyebrow suggestions__label">Try an example</div>`) +
+      sampleChip +
+      exampleChips;
+  };
+
+  renderSuggestions(_selectedToolId);
+
+  // Re-render when tool selection changes
+  document.addEventListener("cat:toolSelected", (e) => {
+    renderSuggestions(e.detail.toolId);
+  });
+
+  container.addEventListener("click", async (e) => {
+    // Example chip → fill textarea
+    const exChip = e.target.closest("[data-example]");
+    if (exChip) {
+      input.value = exChip.textContent.trim();
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.focus();
+      return;
+    }
+    // Sample chip → run directly with sample file
+    const sampleBtn = e.target.closest("[data-sample-run]");
+    if (sampleBtn) {
+      await runTool("", cat, { useSample: true });
+    }
   });
 }
 
