@@ -8,11 +8,24 @@ export function auditGtm(json) {
     return errorReport('Invalid JSON. Paste or upload a valid GTM container export.');
   }
 
+  // A HAR export is .json too — catch that before silently returning an
+  // empty audit (no tags/triggers/variables) so the user gets a real hint.
+  if (container && typeof container === 'object' && container.log?.entries && !container.containerVersion && !container.tag) {
+    return errorReport('This looks like a HAR file, not a GTM container. Switch to the HAR File Auditor, or upload a GTM container export instead.');
+  }
+
   // Fix #1: ROOT EXTRACTION — always use containerVersion for tags/triggers/variables
   const cv = container?.containerVersion ?? container;
   const tags      = cv?.tag      ?? [];
   const triggers  = cv?.trigger  ?? [];
   const variables = cv?.variable ?? [];
+
+  // An otherwise-unrecognized JSON still makes it to here. If nothing looks
+  // like a container, don't return an all-zeros "audit" — tell the user.
+  const hasAnySignal = tags.length || triggers.length || variables.length || container?.exportFormatVersion;
+  if (!hasAnySignal) {
+    return errorReport('No GTM container structure found. Export your container from GTM Admin → Export Container and upload that JSON.');
+  }
 
   const issues = [];
   const summary = {

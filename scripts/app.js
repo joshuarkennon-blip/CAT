@@ -191,8 +191,16 @@ async function runTool(text, cat, { useSample = false } = {}) {
 async function collectInput(tool, useSample = false) {
   if (tool.inputType === "file" || tool.inputType === "file-or-text") {
     if (useSample && tool.sampleFile) return loadSampleFile(tool.sampleFile);
-    const primary = _attachments.find(a => a.role === "primary");
-    if (primary) return parseAttachmentBody(primary);
+
+    // Prefer an attachment whose name/type actually matches what the tool
+    // expects (e.g. .json for GTM) so a screenshot attached alongside a
+    // container doesn't get fed into the parser.
+    const match = pickAttachmentForTool(tool);
+    if (match) {
+      promotePrimary(match.id);
+      return parseAttachmentBody(match);
+    }
+
     if (tool.inputType === "file-or-text") {
       const typed = document.querySelector("[data-composer-input]")?.value.trim() ?? "";
       if (typed) {
@@ -205,6 +213,40 @@ async function collectInput(tool, useSample = false) {
     return promptForm(tool.id);
   }
   return document.querySelector("[data-composer-input]")?.value.trim() ?? "";
+}
+
+function pickAttachmentForTool(tool) {
+  const textual = _attachments.filter(a => !a.binary && typeof a.text === "string");
+  if (!textual.length) return null;
+  const accept = tool.fileAccept;
+  if (!accept) {
+    return textual.find(a => a.role === "primary") ?? textual[0];
+  }
+  const matching = textual.filter(a => attachmentMatchesAccept(a, accept));
+  if (!matching.length) return null;
+  return matching.find(a => a.role === "primary") ?? matching[0];
+}
+
+function attachmentMatchesAccept(att, acceptStr) {
+  const tokens = acceptStr.split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
+  if (!tokens.length) return true;
+  const name = att.name.toLowerCase();
+  const type = (att.type || "").toLowerCase();
+  return tokens.some(tok => {
+    if (tok.startsWith(".")) return name.endsWith(tok);
+    if (tok.endsWith("/*")) return type.startsWith(tok.slice(0, -1));
+    return type === tok;
+  });
+}
+
+function promotePrimary(id) {
+  const target = _attachments.find(a => a.id === id);
+  if (!target || target.role === "primary") return;
+  _attachments.forEach(a => {
+    if (a.role === "primary") a.role = "context";
+  });
+  target.role = "primary";
+  renderAttachments();
 }
 
 async function loadSampleFile(path) {
@@ -239,6 +281,7 @@ function openFilePicker(accept) {
 }
 
 function parseAttachmentBody(att) {
+  if (!att || typeof att.text !== "string") return null;
   try { return JSON.parse(att.text); }
   catch { return att.text; }
 }
@@ -246,7 +289,12 @@ function parseAttachmentBody(att) {
 function buildContext(text, tool) {
   const supporting = _attachments
     .filter(a => a.role !== "primary")
-    .map(a => ({ name: a.name, size: a.size, text: a.text }));
+    .map(a => ({
+      name: a.name,
+      size: a.size,
+      type: a.type,
+      text: a.binary ? null : a.text,
+    }));
   const primary = _attachments.find(a => a.role === "primary");
 
   return {
@@ -512,9 +560,10 @@ function bindAttachments(cat) {
     const removed = _attachments.find(a => a.id === id);
     _attachments = _attachments.filter(a => a.id !== id);
 
-    // If we removed the primary, promote the next one so tools can still run.
+    // If we removed the primary, promote the next textual attachment so
+    // tools can still run. Binary files stay as context only.
     if (removed?.role === "primary") {
-      const next = _attachments.find(a => a.role === "context");
+      const next = _attachments.find(a => a.role === "context" && !a.binary);
       if (next) next.role = "primary";
     }
 
@@ -522,21 +571,41 @@ function bindAttachments(cat) {
   });
 }
 
-async function readFileAsAttachment(file, role) {
+async function readFileAsAttachment(file, suggestedRole) {
   if (!file) return null;
   if (file.size > MAX_ATTACHMENT_BYTES) {
     console.warn(`Skipped ${file.name}: exceeds ${MAX_ATTACHMENT_BYTES} byte limit.`);
     return null;
   }
-  const text = await file.text();
+  const type = file.type || inferTypeFromName(file.name);
+  const binary = isBinaryType(type, file.name);
+  // Binary files (screenshots, PDFs, etc.) can never be the tool's primary
+  // input — reading them as text would produce garbled bytes and crash
+  // parsers. Keep them as context only.
+  const role = binary ? "context" : suggestedRole;
+  const text = binary ? null : await file.text();
   return {
     id: `att-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     name: file.name,
     size: file.size,
-    type: file.type || inferTypeFromName(file.name),
+    type,
     role,
+    binary,
     text,
   };
+}
+
+function isBinaryType(type, name) {
+  const t = (type || "").toLowerCase();
+  if (t.startsWith("image/") || t.startsWith("video/") || t.startsWith("audio/")) return true;
+  if (t === "application/pdf" || t === "application/zip") return true;
+  const ext = "." + (name.split(".").pop() || "").toLowerCase();
+  const binaryExts = new Set([
+    ".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".svg", ".ico",
+    ".pdf", ".zip", ".gz", ".tar",
+    ".mp3", ".mp4", ".mov", ".wav", ".m4a", ".webm",
+  ]);
+  return binaryExts.has(ext);
 }
 
 function inferTypeFromName(name) {
