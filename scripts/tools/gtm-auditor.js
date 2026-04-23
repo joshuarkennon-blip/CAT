@@ -8,12 +8,11 @@ export function auditGtm(json) {
     return errorReport('Invalid JSON. Paste or upload a valid GTM container export.');
   }
 
-  const root = container?.exportFormatVersion ? container
-             : container?.containerVersion ?? container;
-
-  const tags      = root?.tag ?? root?.containerVersion?.tag ?? [];
-  const triggers  = root?.trigger ?? root?.containerVersion?.trigger ?? [];
-  const variables = root?.variable ?? root?.containerVersion?.variable ?? [];
+  // Fix #1: ROOT EXTRACTION — always use containerVersion for tags/triggers/variables
+  const cv = container?.containerVersion ?? container;
+  const tags      = cv?.tag      ?? [];
+  const triggers  = cv?.trigger  ?? [];
+  const variables = cv?.variable ?? [];
 
   const issues = [];
   const summary = {
@@ -37,11 +36,16 @@ export function auditGtm(json) {
 
     if (tag.paused) {
       summary.pausedTags.push(name);
+      // Fix #5: PAUSED UA SEVERITY — use warning for UA tags
+      const pausedSeverity = tag.type === 'ua' ? 'warning' : 'info';
+      const pausedDetail = tag.type === 'ua'
+        ? `"${name}" is paused and not firing. Note: UA was shut down July 2023 and no longer processes data.`
+        : `"${name}" is paused and not firing.`;
       issues.push({
-        severity: 'info',
+        severity: pausedSeverity,
         category: 'Tags',
         title: 'Paused tag',
-        detail: `"${name}" is paused and not firing.`,
+        detail: pausedDetail,
         fix: 'If this tag should be active, unpause it. If deprecated, consider removing it to keep the container clean.',
       });
     }
@@ -61,6 +65,10 @@ export function auditGtm(json) {
     firingTriggers.forEach(id => referencedTriggerIds.add(id));
 
     if (tagNameCounts[name] > 1) {
+      // Fix #10: duplicateTags — also push to summary.duplicateTags if not already there
+      if (!summary.duplicateTags.includes(name)) {
+        summary.duplicateTags.push(name);
+      }
       issues.push({
         severity: 'warning',
         category: 'Tags',
@@ -70,7 +78,8 @@ export function auditGtm(json) {
       });
     }
 
-    if (tag.type === 'googtag' || tag.name?.toLowerCase().includes('ga4')) {
+    // Fix #2: GA4 CHECK SCOPE — restrict to tag.type === 'googtag' only
+    if (tag.type === 'googtag') {
       const measurementId = extractParam(tag, 'measurementId') ?? extractParam(tag, 'tagId');
       if (!measurementId) {
         issues.push({
@@ -81,6 +90,32 @@ export function auditGtm(json) {
           fix: 'Add your GA4 Measurement ID (format: G-XXXXXXXXXX) to this tag.',
         });
       }
+    }
+
+    // Fix #3: UA SUNSET CHECK
+    if (tag.type === 'ua') {
+      issues.push({
+        severity: 'warning',
+        category: 'Tags',
+        title: 'Universal Analytics tag detected',
+        detail: 'UA was shut down July 2023 and no longer processes data.',
+        fix: 'Migrate all tracking to GA4 and delete this tag.',
+      });
+    }
+
+    // Fix #4: CONSENT STATUS CHECK — advertising/pixel tag types without consent
+    const advertisingTypes = ['html', 'awct', 'sp', 'flc', 'fls'];
+    if (
+      tag.consentSettings?.consentStatus === 'NOT_SET' &&
+      advertisingTypes.includes(tag.type)
+    ) {
+      issues.push({
+        severity: 'warning',
+        category: 'Tags',
+        title: 'Tag has no consent configuration',
+        detail: `"${name}" fires without a consent check. For EU/GDPR compliance, configure Consent Mode v2 or add a consent exception trigger.`,
+        fix: 'In GTM, set consent settings on this tag or add a blocking trigger tied to your CMP.',
+      });
     }
   }
 
@@ -99,13 +134,17 @@ export function auditGtm(json) {
 
   for (const variable of variables) {
     if (variable.type === 'jsm') {
-      issues.push({
-        severity: 'info',
-        category: 'Variables',
-        title: 'Custom JavaScript variable detected',
-        detail: `"${variable.name}" uses custom JavaScript. Ensure it handles undefined gracefully.`,
-        fix: 'Wrap custom JS variables in try/catch and always return a default value to prevent undefined errors.',
-      });
+      // Fix #7: JS VARIABLE FALSE POSITIVE — skip if code already has try/catch
+      const code = extractParam(variable, 'javascript') ?? '';
+      if (!code.includes('try')) {
+        issues.push({
+          severity: 'info',
+          category: 'Variables',
+          title: 'Custom JavaScript variable detected',
+          detail: `"${variable.name}" uses custom JavaScript. Ensure it handles undefined gracefully.`,
+          fix: 'Wrap custom JS variables in try/catch and always return a default value to prevent undefined errors.',
+        });
+      }
     }
   }
 
@@ -129,8 +168,9 @@ function buildArchitectureMap(tags, triggers, variables) {
       paused: t.paused ?? false,
       firingTriggers: t.firingTriggerId ?? [],
       blockingTriggers: t.blockingTriggerId ?? [],
-      setupTag: t.setupTag ?? null,
-      teardownTag: t.teardownTag ?? null,
+      // Fix #8: ARCHITECTURE MAP — normalize setupTag/teardownTag to arrays of tag names
+      setupTag: (t.setupTag ?? []).map(s => s.tagName),
+      teardownTag: (t.teardownTag ?? []).map(s => s.tagName),
     })),
     triggers: triggers.map(t => ({
       name: t.name,
@@ -152,7 +192,8 @@ function extractParam(tag, key) {
 function buildGtmRecommendations(issues, summary) {
   const recs = [];
   if (summary.orphanedTags.length > 0) recs.push(`${summary.orphanedTags.length} tag(s) have no firing triggers and will never execute. Assign triggers or remove them.`);
-  if (summary.pausedTags.length > 2) recs.push('Multiple paused tags found. Audit and remove deprecated tags to reduce container complexity.');
+  // Fix #6: PAUSED THRESHOLD — changed from > 2 to > 0
+  if (summary.pausedTags.length > 0) recs.push('Multiple paused tags found. Audit and remove deprecated tags to reduce container complexity.');
   if (summary.orphanedTriggers.length > 0) recs.push('Unused triggers detected. Clean up to simplify container auditing.');
   if (summary.tagCount > 50) recs.push('Large container (50+ tags). Consider consolidating tags using Google Tag (gtag.js) where possible.');
   return recs;
@@ -170,6 +211,8 @@ function errorReport(message) {
     issues: [{ severity: 'error', category: 'Input', title: 'Invalid input', detail: message, fix: 'Export your GTM container from Admin → Export Container in GTM.' }],
     summary: {},
     recommendations: [],
+    // Fix #9: errorReport — add architecture field
+    architecture: { tags: [], triggers: [], variables: [] },
   };
 }
 

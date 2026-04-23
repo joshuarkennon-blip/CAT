@@ -12,7 +12,9 @@ export function checkGa4Config(config) {
     debugModeActive,
   } = config;
 
-  if (!measurementId) {
+  const normalizedId = (measurementId ?? '').trim().toUpperCase();
+
+  if (!normalizedId) {
     issues.push({
       severity: 'critical',
       category: 'Configuration',
@@ -20,12 +22,12 @@ export function checkGa4Config(config) {
       detail: 'A Measurement ID is required for GA4 to collect data.',
       fix: 'Find your Measurement ID in GA4 Admin → Data Streams → select stream → Measurement ID (format: G-XXXXXXXXXX).',
     });
-  } else if (!/^G-[A-Z0-9]{6,}$/.test(measurementId.trim())) {
+  } else if (!/^G-[A-Z0-9]{6,}$/.test(normalizedId)) {
     issues.push({
       severity: 'error',
       category: 'Configuration',
       title: 'Measurement ID format looks wrong',
-      detail: `Got: ${measurementId}. Expected format: G-XXXXXXXXXX`,
+      detail: `Got: ${normalizedId}. Expected format: G-XXXXXXXXXX`,
       fix: 'Double-check the Measurement ID in GA4. Ensure no spaces or extra characters.',
     });
   }
@@ -40,7 +42,7 @@ export function checkGa4Config(config) {
     });
   }
 
-  if (!internalTrafficFilterEnabled) {
+  if (internalTrafficFilterEnabled === false) {
     issues.push({
       severity: 'warning',
       category: 'Data Quality',
@@ -62,7 +64,7 @@ export function checkGa4Config(config) {
 
   if (debugModeActive) {
     issues.push({
-      severity: 'warning',
+      severity: 'error',
       category: 'Configuration',
       title: 'Debug mode is active',
       detail: 'Debug mode can exclude data from standard reports.',
@@ -77,6 +79,16 @@ export function checkGa4Config(config) {
       title: `${streams.length} data streams configured`,
       detail: 'Large number of streams can complicate data reconciliation.',
       fix: 'Ensure each stream serves a distinct purpose and has correct filters applied.',
+    });
+  }
+
+  if (streams.length === 0) {
+    issues.push({
+      severity: 'warning',
+      category: 'Configuration',
+      title: 'No data streams configured',
+      detail: 'No data streams were provided. GA4 requires at least one web or app stream to collect data.',
+      fix: 'Add your stream in GA4 Admin → Data Streams.',
     });
   }
 
@@ -96,7 +108,11 @@ export function checkGa4Config(config) {
           : issues.length > 0 ? 'warning'
           : 'pass',
     issues: issues.sort(bySeverity),
-    summary: { measurementId, keyEventCount: keyEvents.length, streamCount: streams.length },
+    summary: {
+      'Measurement ID': normalizedId || '(not set)',
+      'Key Events': keyEvents.length,
+      'Data Streams': streams.length,
+    },
     recommendations: buildGa4Recommendations(issues),
   };
 }
@@ -105,6 +121,9 @@ function buildGa4Recommendations(issues) {
   const recs = [];
   if (issues.some(i => i.category === 'Data Quality')) recs.push('Data quality issues detected. Address internal traffic filtering before trusting report numbers.');
   if (issues.some(i => i.category === 'Data Retention')) recs.push('Extend data retention to 14 months to enable year-over-year analysis.');
+  if (issues.some(i => i.category === 'Configuration' && (i.severity === 'critical' || i.severity === 'error'))) recs.push('Address critical configuration issues before using this GA4 property for reporting.');
+  if (issues.some(i => i.title.includes('Debug mode'))) recs.push('Disable debug_mode in your GA4 configuration tag before production release.');
+  if (issues.some(i => i.title.includes('stream'))) recs.push('Configure at least one data stream in GA4 Admin to begin collecting data.');
   return recs;
 }
 
