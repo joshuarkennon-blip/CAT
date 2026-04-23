@@ -4,25 +4,34 @@ import { auditGtm } from './gtm-auditor.js';
 
 export function analyzeSequencing(json) {
   const base = auditGtm(json);
-  if (base.status === 'error' && !base.architecture) return base;
+  // Fix #3: GUARD CONDITION — guard on missing architecture only, not on error status
+  if (!base.architecture) return base;
 
   const { tags, triggers } = base.architecture;
   const issues = [];
   const sequenceMap = [];
 
+  // Fix #1: SETUP/TEARDOWN STRUCTURE — extract .tagName from array objects
   for (const tag of tags) {
-    const setupTag = tag.setupTag ?? null;
-    if (setupTag) {
-      sequenceMap.push({ tag: tag.name, dependsOn: setupTag, type: 'setup' });
+    const setupTags = tag.setupTag ?? [];
+    for (const s of setupTags) {
+      sequenceMap.push({ tag: tag.name, dependsOn: s, type: 'setup' });
     }
-    const teardownTag = tag.teardownTag ?? null;
-    if (teardownTag) {
-      sequenceMap.push({ tag: tag.name, followedBy: teardownTag, type: 'teardown' });
+    const teardownTags = tag.teardownTag ?? [];
+    for (const td of teardownTags) {
+      sequenceMap.push({ tag: tag.name, followedBy: td, type: 'teardown' });
     }
   }
 
-  const ga4Tags = tags.filter(t => t.type === 'googtag' || t.name?.toLowerCase().includes('ga4'));
-  const eventTags = tags.filter(t => t.name?.toLowerCase().includes('event') && !t.name?.toLowerCase().includes('ga4 config'));
+  // Fix #5: ACTIVE TAGS ONLY — filter out paused/trigger-less tags
+  const activeTags = tags.filter(t => !t.paused && (t.firingTriggers?.length ?? 0) > 0);
+
+  // Fix #2: GA4 EVENT TAG DETECTION — include gaawe type
+  const ga4Tags = activeTags.filter(t => t.type === 'googtag' || t.name?.toLowerCase().includes('ga4'));
+  const eventTags = activeTags.filter(t =>
+    (t.name?.toLowerCase().includes('event') || t.type === 'gaawe') &&
+    !t.name?.toLowerCase().includes('ga4 config')
+  );
 
   for (const eventTag of eventTags) {
     const hasDependency = sequenceMap.some(s => s.tag === eventTag.name && s.type === 'setup');
@@ -61,7 +70,14 @@ export function analyzeSequencing(json) {
           : 'pass',
     issues: [...base.issues, ...issues].sort(bySeverity),
     sequenceMap,
-    summary: base.summary,
+    architecture: base.architecture ?? null,
+    // Fix #4: SUMMARY — add sequencing-specific fields
+    summary: {
+      ...base.summary,
+      sequenceMapEntries: sequenceMap.length,
+      tagsWithSetupDeps: sequenceMap.filter(s => s.type === 'setup').length,
+      tagsWithTeardownDeps: sequenceMap.filter(s => s.type === 'teardown').length,
+    },
     recommendations: [
       ...base.recommendations,
       'Always set GA4 Configuration tag as a setup dependency for all GA4 event tags.',

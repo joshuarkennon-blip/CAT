@@ -7,9 +7,12 @@ import { resolveCatAssetOptions } from "./cat-assets.js";
 import { maybeMountCatDebugPanel } from "./cat-debug-panel.js";
 import { DEFAULT_CAT_ASSET_CONFIG } from "./cat-default-asset.js";
 import { mountScene } from "./scene.js";
+import { mountMusicPlayer } from "./music-player.js";
+import { mountInteractions } from "./interactions.js";
 import { TOOLS } from "./tools-registry.js";
 import { route } from "./router.js";
 import { renderReport } from "./report-renderer.js";
+import { transitionToReport } from "./cat-transition.js";
 
 const EXAMPLES = [
   "Audit my GTM container",
@@ -36,10 +39,12 @@ function init() {
   const sceneWrapper = document.querySelector("[data-scene]");
   const catStage     = document.querySelector("[data-cat]");
   const monitorUI    = document.querySelector("[data-monitor-ui]");
+  const monitorFace  = document.querySelector("[data-monitor-face]");
 
   const scene = mountScene(sceneWrapper, hero);
   scene.positionCat(catStage);
   scene.positionUI(monitorUI);
+  if (monitorFace) scene.positionMonitorFace(monitorFace);
 
   const assetOptions = resolveCatAssetOptions(catStage, DEFAULT_CAT_ASSET_CONFIG);
   const cat = mountCat(catStage, {
@@ -51,6 +56,8 @@ function init() {
     catStage,
     initialAsset: assetOptions.asset,
   });
+  mountMusicPlayer(scene);
+  mountInteractions(scene);
 
   _toolResultEl = getOrCreateToolResult();
   _attachmentsEl = document.querySelector("[data-attachments]");
@@ -59,9 +66,9 @@ function init() {
   _contextInputEl = document.querySelector("[data-context-input]");
   _contextToggleEl = document.querySelector("[data-context-toggle]");
 
-  bindComposer(cat, hero);
+  bindComposer(cat, hero, scene, catStage);
   bindToolSelect();
-  bindExamples();
+  bindExamples(cat);
   bindAttachments(cat);
   bindContextToggle();
 }
@@ -77,18 +84,51 @@ function getOrCreateToolResult() {
   return el;
 }
 
-function bindComposer(cat, hero) {
+function bindComposer(cat, hero, scene, catStage) {
   const form = document.querySelector("[data-composer]");
   const input = document.querySelector("[data-composer-input]");
   const submit = document.querySelector("[data-composer-submit]");
 
   if (!form || !input) return;
 
-  const engage  = () => hero?.classList.add("hero--engaged");
-  const disengage = () => { if (!input.value.trim()) hero?.classList.remove("hero--engaged"); };
+  const monitorUI = document.querySelector("[data-monitor-ui]");
+
+  const engage = () => {
+    hero?.classList.add("hero--engaged");
+    scene?.moveCatToMonitor(catStage);
+  };
+
+  // force=true disengages even when there's text (ESC / click-outside)
+  const disengage = (force = false) => {
+    if (force || !input.value.trim()) {
+      hero?.classList.remove("hero--engaged");
+      scene?.moveCatToDesk(catStage);
+      cat?.setState("idle");
+    }
+  };
 
   input.addEventListener("focus", engage);
-  input.addEventListener("blur",  disengage);
+  input.addEventListener("blur", (e) => {
+    if (monitorUI?.contains(e.relatedTarget)) return;
+    disengage();
+  });
+
+  // Click anywhere outside the monitor UI → disengage
+  document.addEventListener("click", (e) => {
+    if (hero?.classList.contains("hero--engaged") && !monitorUI?.contains(e.target)) {
+      input.blur();
+      disengage(true);
+    }
+  }, { capture: true });
+
+  // ESC → always disengage and clear focus
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && hero?.classList.contains("hero--engaged")) {
+      e.preventDefault();
+      input.blur();
+      disengage(true);
+    }
+  });
 
   const updateSubmitState = () => {
     submit.disabled = input.value.trim().length === 0;
@@ -117,12 +157,16 @@ function bindComposer(cat, hero) {
   });
 }
 
-async function runTool(text, cat) {
+async function runTool(text, cat, { useSample = false } = {}) {
   const { tool } = route(text, _selectedToolId);
 
   if (!tool) {
-    cat?.setState("attentive");
-    setTimeout(() => cat?.setState("idle"), 1400);
+    // No tool matched — demo mode: still navigate to report with static content
+    cat?.setState("active");
+    setTimeout(() => {
+      cat?.setState("celebratory");
+      setTimeout(() => transitionToReport(), 500);
+    }, 700);
     return;
   }
 
@@ -130,26 +174,30 @@ async function runTool(text, cat) {
 
   try {
     const { run } = await tool.module();
-    const inputData = await collectInput(tool);
+    const inputData = await collectInput(tool, useSample);
     if (inputData === null) {
       cat?.setState("idle");
       return;
     }
     const context = buildContext(text, tool);
-    const result = run(inputData, context) ?? {};
+    const result = await run(inputData, context);
+    if (!result) {
+      cat?.setState("idle");
+      return;
+    }
     result.context = summarizeContext(context);
-    renderReport(result, _toolResultEl);
-    _toolResultEl.scrollIntoView({ behavior: "smooth" });
     cat?.setState("celebratory");
-    setTimeout(() => cat?.setState("idle"), 2000);
+    sessionStorage.setItem("cat-report-data", JSON.stringify(result));
+    setTimeout(() => transitionToReport(), 600);
   } catch (err) {
     console.error(err);
     cat?.setState("idle");
   }
 }
 
-async function collectInput(tool) {
+async function collectInput(tool, useSample = false) {
   if (tool.inputType === "file" || tool.inputType === "file-or-text") {
+    if (useSample && tool.sampleFile) return loadSampleFile(tool.sampleFile);
     const primary = _attachments.find(a => a.role === "primary");
     if (primary) return parseAttachmentBody(primary);
     if (tool.inputType === "file-or-text") {
@@ -164,6 +212,18 @@ async function collectInput(tool) {
     return promptForm(tool.id);
   }
   return document.querySelector("[data-composer-input]")?.value.trim() ?? "";
+}
+
+async function loadSampleFile(path) {
+  try {
+    const res = await fetch(path);
+    if (!res.ok) throw new Error(`${res.status}`);
+    const text = await res.text();
+    try { return JSON.parse(text); } catch { return text; }
+  } catch (err) {
+    console.error("Failed to load sample file:", err);
+    return null;
+  }
 }
 
 function openFilePicker(accept) {
@@ -306,6 +366,8 @@ function bindToolSelect() {
         String(option.dataset.toolId === selectedId)
       );
     });
+    // Notify suggestions area so it can show/hide the sample chip
+    document.dispatchEvent(new CustomEvent("cat:toolSelected", { detail: { toolId: tool.id || null } }));
   };
 
   const setOpen = (open, { focusSelected = false, returnFocus = false } = {}) => {
@@ -366,7 +428,7 @@ function bindToolSelect() {
     if (!trigger.contains(e.target) && !menu.contains(e.target)) {
       setOpen(false);
     }
-  });
+  }, { capture: true });
 
   menu.addEventListener("focusin", (e) => {
     const option = e.target.closest(".tool-select__option");
@@ -561,23 +623,54 @@ function escapeHtml(str) {
   }[s]));
 }
 
-function bindExamples() {
+function bindExamples(cat) {
   const container = document.querySelector("[data-examples]");
   const input = document.querySelector("[data-composer-input]");
   if (!container || !input) return;
 
-  container.innerHTML =
-    `<div class="eyebrow suggestions__label">Try an example</div>` +
-    EXAMPLES.map(
+  const renderSuggestions = (selectedToolId) => {
+    const tool = TOOLS.find(t => t.id === selectedToolId);
+    const hasSample = tool?.sampleFile;
+
+    const sampleChip = hasSample
+      ? `<button type="button" class="chip chip--sample" data-sample-run>
+           Try ${tool.sampleLabel} →
+         </button>`
+      : "";
+
+    const exampleChips = EXAMPLES.map(
       (ex) => `<button type="button" class="chip" data-example>${ex}</button>`
     ).join("");
 
-  container.addEventListener("click", (e) => {
-    const chip = e.target.closest("[data-example]");
-    if (!chip) return;
-    input.value = chip.textContent;
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    input.focus();
+    container.innerHTML =
+      (hasSample
+        ? `<div class="eyebrow suggestions__label">Load a sample or try an example</div>`
+        : `<div class="eyebrow suggestions__label">Try an example</div>`) +
+      sampleChip +
+      exampleChips;
+  };
+
+  renderSuggestions(_selectedToolId);
+
+  // Re-render when tool selection changes
+  document.addEventListener("cat:toolSelected", (e) => {
+    renderSuggestions(e.detail.toolId);
+  });
+
+  container.addEventListener("click", async (e) => {
+    // Example chip → fill textarea
+    const exChip = e.target.closest("[data-example]");
+    if (exChip) {
+      input.value = exChip.textContent.trim();
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.focus();
+      return;
+    }
+    // Sample chip → run directly with sample file
+    const sampleBtn = e.target.closest("[data-sample-run]");
+    if (sampleBtn) {
+      await runTool("", cat, { useSample: true });
+    }
   });
 }
 

@@ -390,11 +390,8 @@ function createVideoProvider(asset) {
   video.playsInline = asset.playsInline ?? true;
   video.preload = asset.preload || "auto";
   video.setAttribute("aria-label", asset.alt || "CAT companion animation");
-  if (asset.poster) {
-    video.poster = asset.poster;
-  }
 
-  const syncPlayback = () => {
+  const tryPlay = () => {
     if (!video.autoplay) return;
     const playback = video.play();
     if (playback && typeof playback.catch === "function") {
@@ -409,14 +406,14 @@ function createVideoProvider(asset) {
     video.src = nextSource;
     video.dataset.activeSource = nextSource;
     video.load();
-    syncPlayback();
+    video.addEventListener("canplay", tryPlay, { once: true });
   };
   setSource("idle");
 
   return {
     type: "video",
     element: video,
-    onMount: syncPlayback,
+    onMount: tryPlay,
     setState: setSource,
     bindError(onError) {
       video.addEventListener("error", onError, { once: true });

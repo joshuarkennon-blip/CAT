@@ -21,6 +21,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg"/>
     <link rel="stylesheet" href="./styles/tokens.css" />
     <link rel="stylesheet" href="./styles/base.css" />
     <link rel="stylesheet" href="./styles/components.css" />
@@ -29,10 +30,17 @@
   <body>
     <div class="app-shell">
       <header class="app-header">
-        <div class="wordmark">CAT<span>.</span></div>
+        <div class="wordmark">
+          <div class="wordmark__logo">
+            <span class="wm-c">C</span><span class="wm-a">A</span><span class="wm-t">T</span><span class="wm-dot">.</span>
+          </div>
+          <div class="wordmark__tagline">Companion Analytics Toolkit</div>
+        </div>
         <div class="header-meta">
           <span><span class="status-dot"></span>Ready</span>
           <span>v0.1</span>
+          <a href="./about.html" class="header-nav-link">About</a>
+          <span class="header-credit">made with ♥ by Josh</span>
         </div>
       </header>
 
@@ -42,6 +50,9 @@
 
         <!-- Cat: absolutely positioned over SVG desk zone by scene.js -->
         <div class="cat-stage hero__cat" data-cat data-state="idle"></div>
+
+        <!-- Monitor face: solid overlay sits above cat, masking cat body behind bezel -->
+        <div class="hero__monitor-face" data-monitor-face aria-hidden="true"></div>
 
         <!-- Monitor UI: absolutely positioned over SVG monitor screen by scene.js -->
         <div class="hero__monitor-ui" data-monitor-ui>
@@ -152,23 +163,14 @@
       </main>
     </div>
 
+    <footer class="legal-footer">
+      <p>&copy; 2026 Joshua Kennon. All rights reserved. CAT — Companion Analytics Toolkit, including all tools, source code, assets, videos, audio, and visual design, is the exclusive intellectual property of Joshua Kennon. Unauthorized reproduction, distribution, or use is strictly prohibited.</p>
+    </footer>
+
     <script>
       window.CAT_ASSET_CONFIG = {
         type: "video",
         src: "./new%20assets/hero-main-v2.mp4",
-        poster: "./new%20assets/hero-main.png",
-        stateSources: {
-          idle:        "./new%20assets/hero-main-v2.mp4",
-          attentive:   "./new%20assets/face-curious.mp4",
-          active:      "./new%20assets/runner-right.mp4",
-          celebratory: "./new%20assets/play-bow.mp4",
-        },
-        statePosterSources: {
-          idle:        "./new%20assets/hero-main.png",
-          attentive:   "./new%20assets/face-curious.png",
-          active:      "./new%20assets/runner-right.png",
-          celebratory: "./new%20assets/play-bow.png",
-        },
       };
     </script>
     <script type="module" src="./scripts/app.js"></script>
