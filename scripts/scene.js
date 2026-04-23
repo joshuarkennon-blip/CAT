@@ -1543,7 +1543,7 @@ const SCENE_SVG = /* html */`
     SVG coords: x=162 y=378 w=232 h=164
     (bottom of zone = y 542 = top of desk surface — cat sits ON desk)
   -->
-  <rect id="s-cat-zone" x="162" y="378" width="232" height="144" fill="transparent"/>
+  <rect id="s-cat-zone" x="202" y="378" width="192" height="144" fill="transparent"/>
 
   <!--
     Monitor-top zone — raised so left paw naturally clears monitor top (SVG y=296) with -18deg tilt.

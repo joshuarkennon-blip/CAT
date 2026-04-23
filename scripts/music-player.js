@@ -5,10 +5,10 @@
 
 const TRACKS = [
   { title: "Purrfectly Chilled", artist: "", src: "./new%20assets/Purrfectly%20Chilled.mp3" },
-  { title: "Catnip",            artist: "", src: "./new%20assets/Catnip.mp3" },
-  { title: "I Love Lamp",       artist: "", src: "./new%20assets/I%20love%20lamp.mp3" },
-  { title: "Tabby Two Step",    artist: "", src: "./new%20assets/Tabby%20Two%20Step.mp3" },
-  { title: "Sinky Drinkies",    artist: "", src: "./new%20assets/SInky%20Drinkies.mp3" },
+  { title: "Tabby Two Step",     artist: "", src: "./new%20assets/Tabby%20Two%20Step.mp3" },
+  { title: "Catnip",             artist: "", src: "./new%20assets/Catnip.mp3" },
+  { title: "I Love Lamp",        artist: "", src: "./new%20assets/I%20love%20lamp.mp3" },
+  { title: "Sinky Drinkies",     artist: "", src: "./new%20assets/SInky%20Drinkies.mp3" },
 ];
 
 export function mountMusicPlayer(scene) {
