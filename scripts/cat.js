@@ -390,9 +390,6 @@ function createVideoProvider(asset) {
   video.playsInline = asset.playsInline ?? true;
   video.preload = asset.preload || "auto";
   video.setAttribute("aria-label", asset.alt || "CAT companion animation");
-  if (asset.poster) {
-    video.poster = asset.poster;
-  }
 
   const tryPlay = () => {
     if (!video.autoplay) return;
@@ -401,9 +398,6 @@ function createVideoProvider(asset) {
       playback.catch(() => {});
     }
   };
-
-  // Clear poster after first successful play so state transitions don't flash the static image
-  video.addEventListener("playing", () => { video.removeAttribute("poster"); }, { once: true });
 
   const setSource = (state) => {
     const nextSource = resolveSourceForState(asset, state);

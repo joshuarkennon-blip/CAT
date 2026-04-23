@@ -125,8 +125,12 @@ async function runTool(text, cat) {
   const { tool, confidence } = route(text, _selectedToolId);
 
   if (!tool) {
-    cat?.setState("attentive");
-    setTimeout(() => cat?.setState("idle"), 1400);
+    // No tool matched — demo mode: still navigate to report with static content
+    cat?.setState("active");
+    setTimeout(() => {
+      cat?.setState("celebratory");
+      setTimeout(() => transitionToReport(), 500);
+    }, 700);
     return;
   }
 

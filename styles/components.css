@@ -114,10 +114,12 @@
 }
 
 /* Cat: mix-blend-mode:screen on the container composites the whole group (video on black)
- * against the scene below — black pixels disappear, cat colors show through naturally. */
+ * against the scene below — black pixels disappear, cat colors show through naturally.
+ * z-index:1 keeps the cat above the SVG scene (z-index:-1) but below the monitor face
+ * (z-index:2) and monitor UI (z-index:3), ensuring the UI always wins pointer events. */
 .hero__cat {
   position: absolute;
-  z-index: auto;
+  z-index: 1;
   overflow: hidden;
   background: transparent;
   mix-blend-mode: screen;

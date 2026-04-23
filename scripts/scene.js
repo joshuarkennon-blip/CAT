@@ -177,6 +177,30 @@ const SCENE_SVG = /* html */`
       <feBlend in="glow" in2="SourceGraphic" mode="screen"/>
     </filter>
 
+    <!-- ── Pointer-event clip zones ───────────────────────────────────────────
+         These clip paths restrict where SVG interactive elements receive clicks.
+         Any SVG interactive group whose bounding box overlaps the monitor screen
+         area (SVG x=418–808, y=310–538) must be clipped so it cannot absorb
+         pointer events in that region — otherwise some browsers allow the SVG
+         hit zone to fire even when an HTML element at a higher z-index sits on
+         top of it.
+    ────────────────────────────────────────────────────────────────────────── -->
+
+    <!-- ESB: only hittable above the monitor bezel top (y < 296).
+         The building base extends down to y=534 which fully overlaps the monitor
+         screen.  Restrict clicks to the spire/upper floors only. -->
+    <clipPath id="s-esb-click-clip">
+      <rect x="0" y="0" width="1440" height="296"/>
+    </clipPath>
+
+    <!-- Plant-left: sits at translate(420,494).  The leaf canopy (SVG y≈494–537)
+         overlaps the bottom edge of the monitor screen (SVG y=310–538).  Only
+         the pot area (SVG y≥538, below the monitor screen) should be hittable.
+         clipPathUnits=userSpaceOnUse so coords are in root SVG space. -->
+    <clipPath id="s-plant-left-click-clip" clipPathUnits="userSpaceOnUse">
+      <rect x="400" y="538" width="100" height="60"/>
+    </clipPath>
+
     <!-- Moon surface: radial limb-darkening for realistic sphere feel -->
     <radialGradient id="s-moon-surface" cx="42%" cy="38%" r="58%">
       <stop offset="0%"   stop-color="#f8fcff" stop-opacity="1"/>
@@ -364,7 +388,7 @@ const SCENE_SVG = /* html */`
       <rect x="798" y="370" width="38"  height="164"/>
     </g>
 
-    <g id="s-esb" style="cursor:pointer;pointer-events:all">
+    <g id="s-esb" style="cursor:pointer;pointer-events:all" clip-path="url(#s-esb-click-clip)">
     <!-- EMPIRE STATE BUILDING -->
     <g fill="#0e051c" opacity="0.9">
       <rect x="487" y="230" width="106" height="304"/>
@@ -719,7 +743,7 @@ const SCENE_SVG = /* html */`
        ══════════════════════════════════════════════════════════════════════ -->
 
   <!-- Left plant (leafy, potted) -->
-  <g id="s-plant-left" transform="translate(420,494)">
+  <g id="s-plant-left" transform="translate(420,494)" clip-path="url(#s-plant-left-click-clip)">
     <path d="M 8 44 L 4 72 L 56 72 L 52 44 Z"      fill="#b84820"/>
     <rect x="2" y="40" width="56" height="8"         fill="#ce5a2c" rx="3"/>
     <ellipse cx="30" cy="46" rx="25" ry="6"          fill="#28100a"/>

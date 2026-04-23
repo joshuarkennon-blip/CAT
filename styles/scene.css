@@ -18,6 +18,10 @@
   display: block;
   width: 100%;
   height: 100%;
+  /* Prevent the SVG root (and any un-targeted SVG surface such as fills,
+     gradients, vignette rects) from absorbing pointer events.  Individual
+     interactive groups opt back in via inline pointer-events:all. */
+  pointer-events: none;
 }
 
 /* ===== Curtain animations ===== */

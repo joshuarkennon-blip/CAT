@@ -61,13 +61,6 @@ export function resolveCatAssetConfig(stage, fallback = {}) {
     sanitizeUrl(effectiveFallback.src)
   );
 
-  const poster = firstDefined(
-    sanitizeUrl(params.get("catPoster")),
-    sanitizeUrl(stageData.catPoster),
-    sanitizeUrl(globalConfig.poster),
-    sanitizeUrl(effectiveFallback.poster)
-  );
-
   const title = firstDefined(
     sanitizeText(params.get("catTitle")),
     sanitizeText(stageData.catTitle),
@@ -92,7 +85,6 @@ export function resolveCatAssetConfig(stage, fallback = {}) {
   return {
     type,
     src: src || "",
-    poster: poster || "",
     title: title || "",
     alt: alt || "",
     interactive,
