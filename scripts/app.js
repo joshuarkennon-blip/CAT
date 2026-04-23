@@ -76,22 +76,43 @@ function bindComposer(cat, hero, scene, catStage) {
 
   if (!form || !input) return;
 
+  const monitorUI = document.querySelector("[data-monitor-ui]");
+
   const engage = () => {
     hero?.classList.add("hero--engaged");
     scene?.moveCatToMonitor(catStage);
   };
-  const disengage = () => {
-    if (!input.value.trim()) {
+
+  // force=true disengages even when there's text (ESC / click-outside)
+  const disengage = (force = false) => {
+    if (force || !input.value.trim()) {
       hero?.classList.remove("hero--engaged");
       scene?.moveCatToDesk(catStage);
+      cat?.setState("idle");
     }
   };
 
   input.addEventListener("focus", engage);
   input.addEventListener("blur", (e) => {
-    const monitorUI = document.querySelector("[data-monitor-ui]");
     if (monitorUI?.contains(e.relatedTarget)) return;
     disengage();
+  });
+
+  // Click anywhere outside the monitor UI → disengage
+  document.addEventListener("click", (e) => {
+    if (hero?.classList.contains("hero--engaged") && !monitorUI?.contains(e.target)) {
+      input.blur();
+      disengage(true);
+    }
+  }, { capture: true });
+
+  // ESC → always disengage and clear focus
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && hero?.classList.contains("hero--engaged")) {
+      e.preventDefault();
+      input.blur();
+      disengage(true);
+    }
   });
 
   const updateSubmitState = () => {
