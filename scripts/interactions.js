@@ -366,6 +366,55 @@ const NOTES = [
   ['ship it', '🚀'],
 ];
 
+// ─── Steam Particles ───────────────────────────────────────────────────────
+
+function spawnSteam(el) {
+  const r = el.getBoundingClientRect();
+  const cx = r.left + r.width * 0.5;
+  const topY = r.top + r.height * 0.1;
+
+  const count = 5 + Math.floor(Math.random() * 3);
+  for (let i = 0; i < count; i++) {
+    const puff = document.createElement('div');
+    const size = 7 + Math.random() * 9;
+    const startX = cx + (Math.random() - 0.5) * r.width * 0.5;
+    const driftX = (Math.random() - 0.5) * 28;
+    const riseY  = 38 + Math.random() * 32;
+    const dur    = 800 + Math.random() * 500;
+    const delay  = i * 90;
+
+    puff.style.cssText = `
+      position:fixed;
+      left:${startX - size / 2}px;
+      top:${topY}px;
+      width:${size}px;
+      height:${size * 1.3}px;
+      border-radius:50%;
+      background:rgba(255,252,245,0.72);
+      filter:blur(${2 + Math.random() * 2}px);
+      pointer-events:none;
+      z-index:10000;
+      opacity:0;
+      transform:translate(0,0) scale(0.4);
+      transition:transform ${dur}ms ease-out, opacity ${dur * 0.9}ms ease-out;
+      will-change:transform,opacity;
+    `;
+    document.body.appendChild(puff);
+
+    setTimeout(() => {
+      requestAnimationFrame(() => {
+        puff.style.opacity = '0.8';
+        puff.style.transform = `translate(${driftX}px,-${riseY}px) scale(1.6)`;
+        setTimeout(() => {
+          puff.style.opacity = '0';
+          puff.style.transform = `translate(${driftX + (Math.random() - 0.5) * 16}px,-${riseY + 24}px) scale(2.2)`;
+          setTimeout(() => puff.remove(), dur);
+        }, dur * 0.45);
+      });
+    }, delay);
+  }
+}
+
 // ─── Main Mount ────────────────────────────────────────────────────────────
 
 export function mountInteractions(scene) {
@@ -373,9 +422,9 @@ export function mountInteractions(scene) {
     const svg = document.querySelector('.scene-wrapper svg');
     if (!svg) { setTimeout(tryMount, 200); return; }
 
-    // Mug — wobble + speech bubble
+    // Mug — steam pours out
     makeInteractive(svg.getElementById('s-mug'), (el) => {
-      wobbleEl(el, 'center', 'center');
+      spawnSteam(el);
       showBubble(el, '☕ mmmm cozy...');
     });
 
