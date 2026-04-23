@@ -139,7 +139,7 @@ function spawnHearts(x, y, count = 1) {
 
 // ─── Speech Bubble ─────────────────────────────────────────────────────────
 
-function showBubble(anchorEl, text, dur = 1800) {
+function showBubble(anchorEl, text, dur = 2200) {
   if (anchorEl._bubble) { anchorEl._bubble.remove(); anchorEl._bubble = null; }
 
   const r = anchorEl.getBoundingClientRect();
@@ -147,36 +147,44 @@ function showBubble(anchorEl, text, dur = 1800) {
   bubble.style.cssText = `
     position:fixed;
     left:${r.left + r.width / 2}px;
-    top:${r.top}px;
-    transform:translate(-50%,-100%) scale(0.5);
-    background:#fffdf8;
-    color:#2a1a0a;
-    padding:9px 16px;
-    border-radius:18px;
+    top:${r.top - 8}px;
+    transform:translate(-50%,-100%) scale(0.6);
+    background:rgba(255,253,248,0.18);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    border:1px solid rgba(255,253,248,0.35);
+    color:#fff;
+    text-shadow:0 1px 6px rgba(0,0,0,0.55);
+    padding:12px 22px;
+    border-radius:22px;
     font-family:'Inter',sans-serif;
-    font-size:16px;
-    font-weight:600;
-    box-shadow:0 3px 14px rgba(0,0,0,0.28);
+    font-size:22px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    box-shadow:0 6px 24px rgba(0,0,0,0.22);
     pointer-events:none;
     z-index:10001;
     white-space:nowrap;
-    transition:transform 0.22s cubic-bezier(0.34,1.56,0.64,1),opacity 0.18s;
+    transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1),opacity 0.2s;
     opacity:0;
   `;
+  bubble.textContent = text;
   const tail = document.createElement('div');
   tail.style.cssText = `
-    position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);
+    position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);
     width:0;height:0;
-    border-left:6px solid transparent;border-right:6px solid transparent;
-    border-top:6px solid #fffdf8;
+    border-left:9px solid transparent;border-right:9px solid transparent;
+    border-top:9px solid rgba(255,253,248,0.35);
   `;
   bubble.appendChild(tail);
   document.body.appendChild(bubble);
   anchorEl._bubble = bubble;
 
   requestAnimationFrame(() => {
-    bubble.style.transform = 'translate(-50%,-100%) scale(1)';
-    bubble.style.opacity = '1';
+    requestAnimationFrame(() => {
+      bubble.style.transform = 'translate(-50%,-100%) scale(1)';
+      bubble.style.opacity = '1';
+    });
   });
 
   setTimeout(() => {
