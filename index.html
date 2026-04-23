@@ -66,28 +66,13 @@
           <form class="composer monitor-composer" data-composer autocomplete="off">
             <div class="composer__attachments" data-attachments hidden></div>
 
-            <div
-              class="composer__context"
-              data-context-panel
-              hidden
-            >
-              <label class="sr-only" for="composer-context">Context &amp; instructions</label>
-              <textarea
-                id="composer-context"
-                class="composer__context-input"
-                rows="2"
-                placeholder="Context &amp; instructions (optional): focus areas, site details, business rules…"
-                data-context-input
-              ></textarea>
-            </div>
-
             <div class="composer__row">
-              <label class="sr-only" for="composer-input">Describe your problem</label>
+              <label class="sr-only" for="composer-input">Describe your problem and add context</label>
               <textarea
                 id="composer-input"
                 class="composer__input"
                 rows="1"
-                placeholder="Describe your problem or select a tool."
+                placeholder="Describe your problem — add context, instructions, focus areas, site details…"
                 data-composer-input
               ></textarea>
               <button
@@ -132,19 +117,6 @@
                   <path d="M10.5 3.5 5 9a2.5 2.5 0 0 0 3.5 3.5l6-6a4 4 0 0 0-5.7-5.7L2.5 7.6" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 <span>Attach</span>
-              </button>
-
-              <button
-                type="button"
-                class="composer__ghost"
-                data-context-toggle
-                aria-expanded="false"
-                aria-controls="composer-context"
-              >
-                <svg class="composer__ghost-icon" viewBox="0 0 16 16" aria-hidden="true">
-                  <path d="M2.5 3.5h11M2.5 8h11M2.5 12.5h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-                </svg>
-                <span>Context</span>
               </button>
 
               <input
