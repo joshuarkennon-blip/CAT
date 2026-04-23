@@ -1,0 +1,389 @@
+/* CAT — Responsive overrides (Phase 1)
+ *
+ * Scope: every rule lives inside @media (max-width: 1023px) so the shipped
+ * desktop cascade at >=1024px is unchanged. This file is imported last on
+ * index.html, report.html, and about.html.
+ *
+ * Tiers:
+ *   .tablet   -> 641–1023px  (outer @media (max-width: 1023px))
+ *   .mobile   -> <= 640px    (nested @media (max-width: 640px))
+ *   .touch    -> any width, (hover:none) and (pointer:coarse)
+ */
+
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * TABLET + MOBILE (<= 1023px)
+ * ────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+
+  /* Slightly looser composer on tablet so the textarea and dropdown breathe. */
+  .monitor-composer .composer__input {
+    max-height: 96px;
+  }
+
+  /* Tablet chat panel keeps the floating look but gets some room. */
+  .cat-chat__panel {
+    width: min(420px, 42vw);
+  }
+
+  /* Report finding card: allow the tag to wrap under the body at narrow
+   * widths instead of squeezing the title into 3 words. */
+  .finding {
+    grid-template-columns: 1fr;
+  }
+  .finding__tag {
+    justify-self: flex-start;
+  }
+}
+
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * MOBILE (<= 640px)
+ * ────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+
+  /* ── App shell ─────────────────────────────────────────────────────────
+   * Desktop pins the shell to 100vh with overflow:hidden so the scene can
+   * fill the viewport. On phones that traps the iOS keyboard and hides the
+   * submit button. Unlock it. */
+  .app-shell {
+    height: auto;
+    min-height: 100dvh;
+    min-height: 100vh; /* fallback for browsers without dvh */
+    overflow: visible;
+  }
+
+  /* ── Header ───────────────────────────────────────────────────────────── */
+  .app-header {
+    padding: var(--space-3) var(--space-4);
+    gap: var(--space-3);
+  }
+  .app-header .header-meta {
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    font-size: 10px;
+  }
+  /* Legal footer is noisy on small screens; keep it available but compact. */
+  .app-header .header-credit,
+  .wordmark__tagline {
+    display: none;
+  }
+
+  /* ── Hero: scene hidden, monitor UI unwrapped ─────────────────────────── */
+  .hero {
+    min-height: auto;
+    padding: var(--space-5) var(--space-4) var(--space-6);
+    justify-content: flex-start;
+    align-items: stretch;
+    isolation: auto;
+  }
+
+  /* Kill the zoom-in when composer is focused (there is no scene to zoom). */
+  .hero--engaged {
+    transform: none !important;
+  }
+
+  /* Drop the scene, bezel, and cat. They're tuned for the desktop aspect
+   * ratio and collapse to a sliver on phones. */
+  .scene-wrapper,
+  .hero__monitor-face,
+  .hero__cat {
+    display: none !important;
+  }
+
+  /* Take the monitor UI out of absolute positioning and let it flow as a
+   * normal block. The inner terminal look (dark bg + inner glow) is kept. */
+  .hero__monitor-ui {
+    position: static !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: var(--space-4) var(--space-4) var(--space-3);
+    border-radius: 12px;
+    overflow: visible !important;
+  }
+
+  /* ── Composer (monitor variant) ──────────────────────────────────────── */
+  /* 16px minimum prevents iOS Safari from auto-zooming on focus. */
+  .monitor-composer .composer__input {
+    font-size: 16px;
+    min-height: 64px;
+    max-height: 200px;
+    line-height: 1.4;
+  }
+
+  /* The submit button is small on desktop for the monitor look — bump it. */
+  .monitor-composer .composer__submit {
+    padding: 0 var(--space-4);
+    font-size: 12px;
+    min-height: 44px;
+  }
+
+  /* Toolbar: let buttons wrap freely and sit comfortably at tap size. */
+  .monitor-composer .composer__toolbar {
+    gap: var(--space-2);
+  }
+  .monitor-composer .composer__ghost {
+    font-size: 12px;
+    padding: var(--space-2) var(--space-3);
+    min-height: 40px;
+  }
+  .monitor-composer .composer__ghost-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Tool dropdown: flip back to opening DOWNWARD on mobile (the app-shell
+   * is no longer overflow:hidden, so we don't need the upward trick), and
+   * make the menu fill the available width so it's always readable. */
+  .monitor-composer .tool-select__trigger {
+    font-size: 12px;
+    padding: var(--space-2) var(--space-3);
+    min-height: 40px;
+  }
+  .monitor-composer .tool-select__menu {
+    top: calc(100% + var(--space-2));
+    bottom: auto;
+    left: 0;
+    right: 0;
+    min-width: 0;
+    max-width: none;
+    width: 100%;
+    max-height: 50vh;
+    padding: var(--space-2);
+    transform: translateY(-4px);
+  }
+  .monitor-composer .tool-select__menu[data-open="true"] {
+    transform: translateY(0);
+  }
+  .monitor-composer .tool-select__option {
+    padding: var(--space-3) var(--space-3);
+  }
+  .monitor-composer .tool-select__option-name {
+    font-size: 13px;
+  }
+  .monitor-composer .tool-select__option-desc {
+    font-size: 11px;
+    -webkit-line-clamp: 3; /* more headroom for long descriptions */
+  }
+
+  /* ── Attachment chips ─────────────────────────────────────────────────── */
+  .composer__attachments {
+    gap: var(--space-2);
+  }
+  .monitor-composer .composer__chip {
+    font-size: 11px;
+    padding: 4px var(--space-2);
+  }
+  .monitor-composer .composer__chip-name {
+    max-width: 48vw;
+  }
+
+  /* ── Suggestion chips inside the monitor UI ──────────────────────────── */
+  .monitor-suggestions {
+    gap: var(--space-2);
+  }
+  .monitor-suggestions .chip,
+  .monitor-suggestions .chip--sample {
+    font-size: 12px;
+    padding: 6px var(--space-3);
+  }
+
+  /* ── Legal footer ─────────────────────────────────────────────────────── */
+  .legal-footer {
+    padding: var(--space-4) var(--space-4);
+  }
+  .legal-footer p {
+    line-height: 1.55;
+  }
+
+  /* ── Report page ─────────────────────────────────────────────────────── */
+  .report-layout {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-5) var(--space-4) var(--space-7);
+  }
+
+  .report-header {
+    padding-bottom: var(--space-5);
+  }
+  .report-header::before {
+    top: calc(-1 * var(--space-5));
+  }
+  .report-header__title {
+    font-size: clamp(24px, 6vw, var(--fs-3xl, 34px));
+    line-height: 1.15;
+  }
+  .report-header__summary {
+    font-size: var(--fs-sm);
+  }
+
+  .report-section {
+    padding: var(--space-4);
+  }
+  .report-section__head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
+  .report-section__actions {
+    flex-wrap: wrap;
+    align-self: flex-start;
+  }
+  .report-section__title {
+    font-size: var(--fs-lg);
+  }
+
+  /* ── Report sidebar: hide cat, put TOC above article as pill bar ────── */
+  .report-aside {
+    position: static;
+    order: -1;
+    flex-direction: row;
+    gap: var(--space-2);
+    z-index: auto;
+  }
+  .aside-cat {
+    display: none;
+  }
+  .aside-toc {
+    flex-direction: row;
+    padding: var(--space-2);
+    gap: var(--space-1);
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+  .aside-toc a {
+    padding: var(--space-2) var(--space-3);
+    margin-left: 0;
+    padding-left: var(--space-3);
+    border-left: 0;
+    border-bottom: 2px solid transparent;
+    flex-shrink: 0;
+    font-size: 10px;
+  }
+  .aside-toc a + a {
+    border-top: 0;
+  }
+  .aside-toc a[aria-current="true"] {
+    border-left-color: transparent;
+    border-bottom-color: var(--accent-orange);
+  }
+
+  /* ── Report chat panel -> bottom sheet ────────────────────────────────── */
+  .cat-chat {
+    padding: 0;
+    align-items: flex-end;
+    justify-content: stretch;
+  }
+  .cat-chat__panel {
+    width: 100%;
+    max-width: 100%;
+    height: 85vh;
+    max-height: 85vh;
+    border-radius: 16px 16px 0 0;
+    transform: translateY(100%);
+    opacity: 1;
+    transition:
+      transform 0.32s cubic-bezier(0.34, 1.3, 0.64, 1),
+      opacity 0.22s ease;
+  }
+  .cat-chat--open .cat-chat__panel {
+    transform: translateY(0);
+  }
+  /* Drag-handle dash above the chat header. */
+  .cat-chat__header {
+    position: relative;
+    padding-top: 20px;
+  }
+  .cat-chat__header::before {
+    content: "";
+    position: absolute;
+    top: 7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.18);
+  }
+  /* Larger inputs inside the chat so they dont trigger iOS zoom. */
+  .cat-chat__setup-input,
+  .cat-chat__input {
+    font-size: 16px;
+  }
+
+  /* When the chat bottom sheet is open, hide the iPod floating player so
+   * it doesnt clash with the sheet controls. :has() is supported across
+   * modern browsers; if unsupported the iPod simply stays visible with a
+   * higher-z-index sheet on top. */
+  body:has(.cat-chat--open) .ipod {
+    display: none !important;
+  }
+
+  /* ── iPod music player: center-bottom, shrink a touch ────────────────── */
+  .ipod {
+    left: 50% !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px)) !important;
+    transform: translateX(-50%);
+  }
+  .ipod__body {
+    width: 200px;
+    padding: 12px 14px 14px;
+    gap: 10px;
+  }
+
+  /* ── About page: mirror its existing <=600px block into our layer so the
+   *    cascade is consistent, and add a mobile title clamp floor. ─────── */
+  .about-hero__title {
+    font-size: clamp(24px, 6.5vw, 32px);
+  }
+
+  /* Tool result (inline report container on homepage) */
+  .tool-result {
+    padding: var(--space-5) var(--space-4) var(--space-7);
+  }
+}
+
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * TOUCH TAP TARGETS (any width, hover-less pointers)
+ * A second safety net for anyone on a touch-capable laptop/tablet/phone.
+ * Scoped tight to the primary interactive controls so desktop mouse users
+ * at >=1024px with a touchscreen still get comfortable targets.
+ * ────────────────────────────────────────────────────────────────────────── */
+@media (hover: none) and (pointer: coarse) {
+  .icon-button {
+    min-height: 44px;
+    padding: var(--space-2) var(--space-4);
+  }
+  .header-nav-link {
+    padding: var(--space-2) 0;
+  }
+  .tool-select__trigger {
+    min-height: 44px;
+  }
+  .composer__submit {
+    min-height: 44px;
+  }
+  .composer__ghost {
+    min-height: 40px;
+  }
+  .chip,
+  .chip--sample {
+    min-height: 36px;
+  }
+  .cat-chat__close,
+  .cat-chat__setup-btn,
+  .cat-chat__send-btn {
+    min-height: 40px;
+    min-width: 40px;
+  }
+}
