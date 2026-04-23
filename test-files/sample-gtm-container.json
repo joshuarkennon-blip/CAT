@@ -1,0 +1,350 @@
+{
+  "exportFormatVersion": 2,
+  "exportTime": "2024-03-15 09:00:00",
+  "containerVersion": {
+    "path": "accounts/987654321/containers/12345678/versions/42",
+    "accountId": "987654321",
+    "containerId": "12345678",
+    "containerVersionId": "42",
+    "name": "ACME eCommerce - Production",
+    "deleted": false,
+    "description": "Production GTM container for ACME eCommerce site.",
+    "container": {
+      "path": "accounts/987654321/containers/12345678",
+      "accountId": "987654321",
+      "containerId": "12345678",
+      "name": "ACME eCommerce - Production",
+      "publicId": "GTM-ABCD1234",
+      "timeZoneId": "America/New_York",
+      "features": {
+        "supportUserPermissions": true,
+        "supportEnvironments": true,
+        "supportWorkspaces": true,
+        "supportGtagConfigs": false,
+        "supportBuiltInVariables": true,
+        "supportClients": false,
+        "supportFolders": true,
+        "supportTags": true,
+        "supportTemplates": true,
+        "supportTriggers": true,
+        "supportVariables": true,
+        "supportVersions": true,
+        "supportZones": false
+      }
+    },
+    "tag": [
+      {
+        "accountId": "987654321",
+        "containerId": "12345678",
+        "tagId": "1",
+        "name": "GA4 Configuration",
+        "type": "googtag",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "tagId", "value": "G-XKZP9Q7R3M" },
+          { "type": "LIST", "key": "configSettingsTable", "list": [
+            {
+              "type": "MAP",
+              "map": [
+                { "type": "TEMPLATE", "key": "parameter", "value": "send_page_view" },
+                { "type": "TEMPLATE", "key": "parameterValue", "value": "true" }
+              ]
+            }
+          ]},
+          { "type": "BOOLEAN", "key": "enableSendBeacon", "value": "true" }
+        ],
+        "fingerprint": "1710498001111",
+        "firingTriggerId": ["2147479553"],
+        "tagFiringOption": "ONCE_PER_EVENT",
+        "monitoringMetadata": { "type": "MAP" },
+        "consentSettings": {
+          "consentStatus": "NOT_SET"
+        }
+      },
+      {
+        "accountId": "987654321",
+        "containerId": "12345678",
+        "tagId": "2",
+        "name": "GA4 Event - Purchase",
+        "type": "gaawe",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "eventName", "value": "purchase" },
+          { "type": "LIST", "key": "eventParameters", "list": [
+            {
+              "type": "MAP",
+              "map": [
+                { "type": "TEMPLATE", "key": "name", "value": "transaction_id" },
+                { "type": "TEMPLATE", "key": "value", "value": "{{DL - Transaction ID}}" }
+              ]
+            },
+            {
+              "type": "MAP",
+              "map": [
+                { "type": "TEMPLATE", "key": "name", "value": "value" },
+                { "type": "TEMPLATE", "key": "value", "value": "{{DL - Ecommerce Revenue}}" }
+              ]
+            },
+            {
+              "type": "MAP",
+              "map": [
+                { "type": "TEMPLATE", "key": "name", "value": "currency" },
+                { "type": "TEMPLATE", "key": "value", "value": "USD" }
+              ]
+            }
+          ]},
+          { "type": "TAG_REFERENCE", "key": "measurementId", "value": "GA4 Configuration" }
+        ],
+        "fingerprint": "1710498001222",
+        "firingTriggerId": ["3"],
+        "tagFiringOption": "ONCE_PER_EVENT",
+        "setupTag": [
+          {
+            "tagName": "GA4 Configuration",
+            "stopOnSetupFailure": true
+          }
+        ],
+        "monitoringMetadata": { "type": "MAP" }
+      },
+      {
+        "accountId": "987654321",
+        "containerId": "12345678",
+        "tagId": "3",
+        "name": "Google Ads Conversion - Purchase",
+        "type": "awct",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "conversionId", "value": "123456789" },
+          { "type": "TEMPLATE", "key": "conversionLabel", "value": "AbCdEfGhIjKlMnOp" },
+          { "type": "TEMPLATE", "key": "conversionValue", "value": "{{DL - Ecommerce Revenue}}" },
+          { "type": "TEMPLATE", "key": "currencyCode", "value": "USD" },
+          { "type": "TEMPLATE", "key": "orderId", "value": "{{DL - Transaction ID}}" },
+          { "type": "BOOLEAN", "key": "enableConversionLinker", "value": "true" }
+        ],
+        "fingerprint": "1710498001333",
+        "firingTriggerId": ["2147479553"],
+        "tagFiringOption": "ONCE_PER_EVENT",
+        "monitoringMetadata": { "type": "MAP" }
+      },
+      {
+        "accountId": "987654321",
+        "containerId": "12345678",
+        "tagId": "4",
+        "name": "Meta Pixel - Base Code",
+        "type": "html",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "html", "value": "<script>\n!function(f,b,e,v,n,t,s)\n{if(f.fbq)return;n=f.fbq=function(){n.callMethod?\nn.callMethod.apply(n,arguments):n.queue.push(arguments)};\nif(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';\nn.queue=[];t=b.createElement(e);t.async=!0;\nt.src=v;s=b.getElementsByTagName(e)[0];\ns.parentNode.insertBefore(t,s)}(window, document,'script',\n'https://connect.facebook.net/en_US/fbevents.js');\nfbq('init', '987654321');\nfbq('track', 'PageView');\n</script>" },
+          { "type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false" }
+        ],
+        "fingerprint": "1710498001444",
+        "firingTriggerId": ["2147479553"],
+        "tagFiringOption": "ONCE_PER_EVENT",
+        "monitoringMetadata": { "type": "MAP" }
+      },
+      {
+        "accountId": "987654321",
+        "containerId": "12345678",
+        "tagId": "5",
+        "name": "Meta Pixel - Purchase Event",
+        "type": "html",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "html", "value": "<script>\nfbq('track', 'Purchase', {\nvalue: {{DL - Ecommerce Revenue}},\ncurrency: 'USD',\ncontents: [{'id': '{{DL - Transaction ID}}', 'quantity': 1}],\ncontent_type: 'product'\n});\n</script>" },
+          { "type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false" }
+        ],
+        "fingerprint": "1710498001555",
+        "firingTriggerId": ["3"],
+        "tagFiringOption": "ONCE_PER_EVENT",
+        "setupTag": [
+          {
+            "tagName": "Meta Pixel - Base Code",
+            "stopOnSetupFailure": true
+          }
+        ],
+        "teardownTag": [
+          {
+            "tagName": "GA4 Event - Purchase",
+            "stopTeardownOnFailure": false
+          }
+        ],
+        "monitoringMetadata": { "type": "MAP" }
+      },
+      {
+        "accountId": "987654321",
+        "containerId": "12345678",
+        "tagId": "6",
+        "name": "Google Ads Remarketing",
+        "type": "sp",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "conversionId", "value": "123456789" },
+          { "type": "TEMPLATE", "key": "customParams", "value": "" }
+        ],
+        "fingerprint": "1710498001666",
+        "firingTriggerId": ["2147479553"],
+        "tagFiringOption": "ONCE_PER_EVENT",
+        "paused": false,
+        "monitoringMetadata": { "type": "MAP" }
+      },
+      {
+        "accountId": "987654321",
+        "containerId": "12345678",
+        "tagId": "7",
+        "name": "Legacy Universal Analytics - DEPRECATED",
+        "type": "ua",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "trackingId", "value": "UA-11223344-1" },
+          { "type": "TEMPLATE", "key": "trackType", "value": "TRACK_PAGEVIEW" },
+          { "type": "BOOLEAN", "key": "overrideHitType", "value": "false" }
+        ],
+        "fingerprint": "1710498001777",
+        "firingTriggerId": ["2147479553"],
+        "tagFiringOption": "ONCE_PER_EVENT",
+        "paused": true,
+        "monitoringMetadata": { "type": "MAP" }
+      },
+      {
+        "accountId": "987654321",
+        "containerId": "12345678",
+        "tagId": "8",
+        "name": "Custom HTML - Consent Banner Init",
+        "type": "html",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "html", "value": "<script>\n(function() {\n  var consentBanner = window.AcmeConsent || {};\n  consentBanner.init({\n    region: 'EU',\n    mode: 'opt-in',\n    categories: ['analytics', 'advertising', 'functional']\n  });\n  window.dataLayer = window.dataLayer || [];\n  window.dataLayer.push({'event': 'consent_banner_shown'});\n})();\n</script>" },
+          { "type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false" }
+        ],
+        "fingerprint": "1710498001888",
+        "firingTriggerId": ["4"],
+        "tagFiringOption": "ONCE_PER_EVENT",
+        "monitoringMetadata": { "type": "MAP" }
+      },
+      {
+        "accountId": "987654321",
+        "containerId": "12345678",
+        "tagId": "9",
+        "name": "Google Ads Conversion Linker",
+        "type": "flc",
+        "parameter": [
+          { "type": "BOOLEAN", "key": "enableCrossDomainLinking", "value": "false" },
+          { "type": "BOOLEAN", "key": "decorate_forms", "value": "false" }
+        ],
+        "fingerprint": "1710498001999",
+        "firingTriggerId": [],
+        "tagFiringOption": "ONCE_PER_EVENT",
+        "monitoringMetadata": { "type": "MAP" }
+      }
+    ],
+    "trigger": [
+      {
+        "accountId": "987654321",
+        "containerId": "12345678",
+        "triggerId": "2147479553",
+        "name": "All Pages",
+        "type": "PAGEVIEW",
+        "fingerprint": "1710498002001"
+      },
+      {
+        "accountId": "987654321",
+        "containerId": "12345678",
+        "triggerId": "3",
+        "name": "Purchase Confirmation Page",
+        "type": "PAGEVIEW",
+        "filter": [
+          {
+            "type": "CONTAINS",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{Page Path}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "/checkout/confirmation" }
+            ]
+          }
+        ],
+        "fingerprint": "1710498002002"
+      },
+      {
+        "accountId": "987654321",
+        "containerId": "12345678",
+        "triggerId": "4",
+        "name": "DOM Ready - All Pages",
+        "type": "DOM_READY",
+        "fingerprint": "1710498002003"
+      },
+      {
+        "accountId": "987654321",
+        "containerId": "12345678",
+        "triggerId": "5",
+        "name": "Custom Event - Add To Cart",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [
+          {
+            "type": "EQUALS",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{_event}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "add_to_cart" }
+            ]
+          }
+        ],
+        "fingerprint": "1710498002004"
+      },
+      {
+        "accountId": "987654321",
+        "containerId": "12345678",
+        "triggerId": "6",
+        "name": "Scroll Depth 50 Percent",
+        "type": "SCROLL_DEPTH",
+        "parameter": [
+          { "type": "BOOLEAN", "key": "verticalThresholdPercents", "value": "true" },
+          { "type": "TEMPLATE", "key": "verticalThresholdsPercent", "value": "50" }
+        ],
+        "fingerprint": "1710498002005"
+      }
+    ],
+    "variable": [
+      {
+        "accountId": "987654321",
+        "containerId": "12345678",
+        "variableId": "1",
+        "name": "DL - Transaction ID",
+        "type": "v",
+        "parameter": [
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" },
+          { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" },
+          { "type": "TEMPLATE", "key": "name", "value": "ecommerce.transaction_id" }
+        ],
+        "fingerprint": "1710498003001"
+      },
+      {
+        "accountId": "987654321",
+        "containerId": "12345678",
+        "variableId": "2",
+        "name": "DL - Ecommerce Revenue",
+        "type": "v",
+        "parameter": [
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" },
+          { "type": "BOOLEAN", "key": "setDefaultValue", "value": "true" },
+          { "type": "TEMPLATE", "key": "defaultValue", "value": "0" },
+          { "type": "TEMPLATE", "key": "name", "value": "ecommerce.value" }
+        ],
+        "fingerprint": "1710498003002"
+      },
+      {
+        "accountId": "987654321",
+        "containerId": "12345678",
+        "variableId": "3",
+        "name": "DL - User ID",
+        "type": "v",
+        "parameter": [
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" },
+          { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" },
+          { "type": "TEMPLATE", "key": "name", "value": "user_id" }
+        ],
+        "fingerprint": "1710498003003"
+      },
+      {
+        "accountId": "987654321",
+        "containerId": "12345678",
+        "variableId": "4",
+        "name": "JS - Cookie Consent Status",
+        "type": "jsm",
+        "parameter": [
+          { "type": "SCRIPT_VALUE", "key": "javascript", "value": "function() {\n  try {\n    var consent = window.AcmeConsent && window.AcmeConsent.getStatus();\n    return consent ? consent.analytics : false;\n  } catch(e) {\n    return false;\n  }\n}" }
+        ],
+        "fingerprint": "1710498003004"
+      }
+    ]
+  }
+}
