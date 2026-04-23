@@ -1,8 +1,22 @@
 // scripts/tools/har-auditor.js
 
 export function auditHar(har) {
+  // Accept either a parsed object or a raw JSON string (from paste/picker).
+  if (typeof har === 'string') {
+    try { har = JSON.parse(har); }
+    catch { return errorReport('Invalid JSON. Upload a valid HAR file exported from Chrome DevTools.'); }
+  }
+
+  if (har && typeof har === 'object') {
+    // A GTM container export is .json too and can slip into the HAR slot.
+    // Catch that before the empty-entries check so the user gets a real hint.
+    if (!har.log && (har.containerVersion || Array.isArray(har.tag) || Array.isArray(har.trigger))) {
+      return errorReport('This looks like a GTM container export, not a HAR file. Switch to the GTM Container Auditor, or upload a HAR file instead.');
+    }
+  }
+
   const entries = har?.log?.entries ?? [];
-  if (!entries.length) return errorReport('No entries found in HAR file.');
+  if (!entries.length) return errorReport('No entries found in HAR file. Make sure you exported the HAR with network activity captured.');
 
   // Fix 1: detect first-party hostname to exclude from thirdPartyDomains
   let firstPartyHostname = null;
